@@ -123,7 +123,7 @@ const SignIn = () => {
         <div className="w-full lg:w-1/2 p-8 sm:p-10 text-[#282A3A]">
           <div className="flex items-start mb-4">
             <Link
-              href="http://localhost:3000"
+              href={process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}
               className="text-[#C69749] border px-2 py-0.5 rounded-md hover:bg-[#735F32] transition"
             >
               🡸

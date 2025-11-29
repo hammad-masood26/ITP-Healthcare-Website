@@ -111,7 +111,7 @@ export default function MedicalChatbot() {
       setTypingText('');
 
       try {
-        const res = await fetch('http://127.0.0.1:5000/medical_assistance', {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5000'}/medical_assistance`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ query: userInput }),
@@ -345,7 +345,7 @@ export default function MedicalChatbot() {
 
       <div className="flex-1 flex flex-col md:ml-64">
         <header className="bg-gray-800 border-b border-gray-700 p-4 flex justify-between items-center">
-          <Link href="http://localhost:3000" className="text-[#ffffff] border px-2 py-0.5 rounded-md hover:bg-[#735Ff2] transition">
+          <Link href={process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"} className="text-[#ffffff] border px-2 py-0.5 rounded-md hover:bg-[#735Ff2] transition">
             🡸
           </Link>
           <h1 className="text-xl font-bold">Medical Knowledge Assistant</h1>

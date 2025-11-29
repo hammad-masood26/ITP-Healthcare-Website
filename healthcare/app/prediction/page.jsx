@@ -51,7 +51,7 @@ export default function ConditionPredictor() {
     const user = auth.currentUser;
 
     try {
-      const res = await fetch('http://127.0.0.1:5000/disease', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5000'}/disease`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -99,7 +99,7 @@ export default function ConditionPredictor() {
     <div className="min-h-screen bg-gradient-to-br from-[#000000] via-[#282A3A] to-[#C69749] flex items-center justify-center p-6">
       <div className="bg-white shadow-2xl rounded-2xl p-8 max-w-xl w-full border border-[#282A3A]">
         <div className="flex justify-between items-center font-extrabold mb-4">
-          <Link href="http://localhost:3000" className="text-[#000000] border border-[#735F32] px-2 py-0.5 rounded-md hover:bg-[#735F32] transition">
+          <Link href={process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"} className="text-[#000000] border border-[#735F32] px-2 py-0.5 rounded-md hover:bg-[#735F32] transition">
             🡸
           </Link>
 

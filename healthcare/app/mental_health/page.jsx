@@ -52,7 +52,7 @@ export default function Chatbot() {
         const user = auth.currentUser;
 
         try {
-            const res = await fetch('http://127.0.0.1:5000/mental_health', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5000'}/mental_health`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message }),
@@ -94,7 +94,7 @@ export default function Chatbot() {
                 {/* Header Section with Back Button and Username */}
                 <div className="flex items-center justify-between mb-4">
                     {/* Back Button */}
-                    <Link href="http://localhost:3000" className="text-[#000000] border border-[#735F32] px-2 py-0.5 rounded-md hover:bg-[#735F32] transition">
+                    <Link href={process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"} className="text-[#000000] border border-[#735F32] px-2 py-0.5 rounded-md hover:bg-[#735F32] transition">
                         🡸
                     </Link>
                     {/* Username */}

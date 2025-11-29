@@ -96,7 +96,8 @@ const AdminDashboard = () => {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await fetch('http://localhost:5000/admin/stats', {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const response = await fetch(`${apiUrl}/admin/stats`, {
         headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' },
       });
 
@@ -167,7 +168,8 @@ const AdminDashboard = () => {
   const handleReplySubmit = async (feedbackId: string, message: string) => {
     if (!message.trim()) return false;
     try {
-      const response = await fetch('http://localhost:5000/admin/feedback/reply', {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const response = await fetch(`${apiUrl}/admin/feedback/reply`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ feedbackId, message }),
@@ -255,7 +257,7 @@ const AdminDashboard = () => {
     <div className="p-6 bg-[#121218] min-h-screen text-white">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <Link href="http://localhost:3000/" className="text-[#ffffff] border border-[#735F32] px-2 py-0.5 rounded-md hover:bg-[#735F32] transition">
+          <Link href={process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000/"} className="text-[#ffffff] border border-[#735F32] px-2 py-0.5 rounded-md hover:bg-[#735F32] transition">
             🡸
           </Link>
           <h1 className="text-3xl font-bold text-[#C69749]">Admin Dashboard</h1>
