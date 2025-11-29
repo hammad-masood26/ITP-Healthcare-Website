@@ -327,10 +327,10 @@ export default function DiseasePredictorTab({
                 )}
                 {filteredRiskLevelsTable.length > 0 && (
                   <BarChartComponent
-                    data={filteredRiskLevelsTable}
-                    dataKey="value"
+                    data={filteredRiskLevelsTable.map((item: any) => ({ name: item.label, count: item.value }))}
+                    dataKey="count"
+                    yAxisKey="count"
                     xAxisKey="name"
-                    
                     barColors={['#FF6B6B', '#FFD166', '#06D6A0', '#4A90E2', '#F5A623']}
                     title="Risk Levels for Predicted Diseases"
                   />

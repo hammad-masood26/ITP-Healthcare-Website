@@ -342,7 +342,7 @@ export default function MentalHealthTab({ stats, data }: { stats: StatItem; data
                   <BarChartComponent
                     data={commonWords}
                     dataKey="count"
-                    nameKey="name"
+                    yAxisKey="count"
                     xAxisKey="name" // Explicitly specify xAxisKey for clarity
                     barColors={[
                   '#6C5CE7', // Soft purple
@@ -356,8 +356,6 @@ export default function MentalHealthTab({ stats, data }: { stats: StatItem; data
                   '#81ECEC', // Aqua
                   '#FD79A8'  // Rosy pink
                 ]}
-
-
                     title="Most Common Words"
                   />
                 ) : (
