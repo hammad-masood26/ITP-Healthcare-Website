@@ -32,7 +32,7 @@ const Header = () => {
       {/* Content */}
       <div className="relative z-10 w-11/12 max-w-3xl text-center mx-auto h-screen flex flex-col items-center justify-center gap-4 pt-24 text-[#C69749]">
         <h1 className="text-4xl sm:text-6xl font-bold">Revolutionize HealthCare with ITP</h1>
-        <p className="max-w-2xl mx-auto text-[#C69749]/80 text-lg">
+        <p className="max-w-2xl mx-auto text-white/80 text-lg">
           To achieve better healthcare and well-being, focus on prevention through regular check-ups, a balanced diet, and consistent physical activity.
            Incorporate stress management techniques like mindfulness, quality sleep, and social support to reduce the risk of chronic illnesses.
             These simple habits can lead to a healthier, longer, and more fulfilling life.
@@ -43,13 +43,13 @@ const Header = () => {
           <div className="flex flex-col sm:flex-row items-center gap-4 mt-6">
             <a
               href="/sign-up"
-              className="px-10 py-3 border rounded-full border-[#C69749] text-[#C69749] flex items-center gap-2 hover:bg-[#C69749] hover:text-black transition"
+              className="px-10 py-3 border rounded-full border-white text-white flex items-center gap-2 hover:border-[#C69749] hover:text-[#C69749] transition"
             >
               Get Started <Image src={assets.right_arrow_white} alt="" className="w-4" />
             </a>
             <a
               href="/sign-up"
-              className="px-10 py-3 border rounded-full border-[#C69749] text-[#C69749] flex items-center gap-2 hover:bg-[#C69749] hover:text-black transition"
+              className="px-10 py-3 border rounded-full border-white text-white flex items-center gap-2 hover:border-[#C69749] hover:text-[#C69749] transition"
             >
               Request a Demo <Image src={assets.right_arrow_white} alt="" className="w-4" />
             </a>

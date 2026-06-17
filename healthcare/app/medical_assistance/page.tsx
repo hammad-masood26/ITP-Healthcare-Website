@@ -6,6 +6,7 @@ import { Loader2, Send } from 'lucide-react';
 import Link from 'next/link';
 import { assets } from '../../assets/assets';
 import Image from 'next/image';
+import toast from 'react-hot-toast';
 
 type ChatMessage = {
   sender: 'user' | 'ai';
@@ -144,9 +145,11 @@ export default function MedicalChatbot() {
           setChatHistory(prev => prev.map((msg, idx) => 
             idx === prev.length - 1 ? { ...msg, serialNo } : msg
           ));
+          toast.success('Response saved successfully!');
         }
       } catch (error: any) {
-        const errMsg = `⚠️ Error: ${error.message || 'Could not connect to the server.'}`;
+        const errMsg = error.message || 'Could not connect to the server.';
+        toast.error(errMsg);
         setChatHistory((prev) => [...prev, { 
           sender: 'ai', 
           message: errMsg,

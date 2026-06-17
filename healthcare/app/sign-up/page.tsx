@@ -6,9 +6,8 @@ import { useRouter } from 'next/navigation';
 import { doc, setDoc, runTransaction, serverTimestamp } from 'firebase/firestore';
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 import { FcGoogle } from 'react-icons/fc';
-import { FaFacebook } from 'react-icons/fa';
 import Link from 'next/link';
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 
 type Gender = 'male' | 'female' | 'other' | 'prefer-not-to-say';
 
@@ -156,6 +155,52 @@ const SignUp = () => {
     }
   };
 
+  const handleGoogleSignUp = async () => {
+    setError('');
+    setLoading(true);
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      // Check if user already exists
+      const userDocRef = doc(db, "users", user.uid);
+      const userDocSnap = await setDoc(userDocRef, {
+        uid: user.uid,
+        name: user.displayName || 'User',
+        email: user.email,
+        profilePicture: user.photoURL || '',
+        createdAt: serverTimestamp(),
+        lastLogin: serverTimestamp(),
+        status: 'active',
+        role: 'user',
+        emailVerified: user.emailVerified,
+        profileComplete: false,
+        accountType: 'google',
+        loginCount: 1,
+        metadata: {
+          signUpMethod: 'google',
+          ipAddress: '',
+          userAgent: typeof window !== 'undefined' ? window.navigator.userAgent : ''
+        }
+      }, { merge: true });
+
+      sessionStorage.setItem('user', 'true');
+      router.push('/sign-in');
+    } catch (error: any) {
+      console.error('Google Sign-up Error:', error);
+      if (error.code === 'auth/popup-closed-by-user') {
+        setError('Sign-up was cancelled. Please try again.');
+      } else if (error.code === 'auth/popup-blocked') {
+        setError('Pop-up was blocked. Please enable pop-ups and try again.');
+      } else {
+        setError(error.message || 'Failed to sign up with Google. Please try again.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[##C69749] flex items-center justify-center p-4">
       <div className="flex flex-col lg:flex-row bg-white rounded-2xl shadow-lg overflow-hidden max-w-4xl w-full min-h-screen">
@@ -187,7 +232,7 @@ const SignUp = () => {
           </div>
 
           <label className="block text-sm mb-1 text-[#000000]">Gender:</label>
-          <div className="grid grid-cols-5 gap-2">
+          <div className="grid grid-cols-5 gap-6 mb-4">
             {(['male', 'female', 'other'] as Gender[]).map((option) => (
               <label
                 key={option}
@@ -231,16 +276,21 @@ const SignUp = () => {
             <label className="block text-sm mb-1 text-[#282A3A]">Password:</label>
             <input
               type={showPassword ? 'text' : 'password'}
-              placeholder="At least 6 characters, ie. JhonDoe@008"
+              placeholder="e.g: Abc123@!"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleSignUp();
+                }
+              }}
               className="w-full px-4 py-3 pr-10 border border-[#735F32] bg-transparent text-[#282A3A] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C69749] placeholder-[#735F32]"
               disabled={loading}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className={`absolute right-3 top-10 transform -translate-y-1/2 text-[#735F32] hover:text-[#C69749] ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`absolute right-3 short the text tin about ustop-1/2 -translate-y-1/2 text-[#735F32] hover:text-[#C69749] ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
               disabled={loading}
             >
               {showPassword ? <AiOutlineEyeInvisible size={20} /> : <AiOutlineEye size={20} />}
@@ -291,18 +341,12 @@ const SignUp = () => {
 
           <div className="space-y-3">
             <button
+              onClick={handleGoogleSignUp}
               className={`w-full flex items-center justify-center gap-2 bg-transparent border border-[#735F32] py-2 rounded-lg hover:bg-[#f4f4f4] text-[#282A3A] transition ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
               disabled={loading}
             >
               <FcGoogle size={20} />
-              <span className="text-sm">Sign in with Google</span>
-            </button>
-            <button
-              className={`w-full flex items-center justify-center gap-2 bg-transparent border border-[#735F32] py-2 rounded-lg hover:bg-[#f4f4f4] text-[#282A3A] transition ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-              disabled={loading}
-            >
-              <FaFacebook size={20} className="text-[#1877F2]" />
-              <span className="text-sm">Sign in with Facebook</span>
+              <span className="text-sm">Sign up with Google</span>
             </button>
           </div>
 

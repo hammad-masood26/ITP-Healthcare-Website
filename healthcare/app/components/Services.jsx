@@ -47,19 +47,19 @@ const Services = () => {
     <section id="services" className="min-h-screen px-4 py-20 text-white bg-black/50 z-0">
       <div className="max-w-6xl mx-auto text-center">
         <h2 className="text-4xl font-bold mb-12 text-[#C69749]">Our AI Services</h2>
-        <div className="">
-          <p className="text-[#C69749] leading-relaxed mb-6">
-            At <strong>ITP</strong>, we are committed to revolutionizing healthcare through cutting-edge AI technology with our AI Services.
-            Our <strong>Disease</strong> service leverages advanced AI models to analyze your symptoms,
-            offering potential health outcome predictions and exploring correlations with various diseases and medical conditions for valuable insights.
-            The <strong>Mental Health Analyzer</strong> allows you to delve into mental health topics,
-            providing a deeper understanding by adding text for instant analysis and insights into well-being and related health information.
-            Additionally, our <strong>Medical Assistance ChatBot</strong> delivers instant medical insights by addressing your queries about symptoms, treatments,
-            causes, and more, powered by a trusted AI assistant designed to support you with reliable healthcare information.
-            <strong>Try these innovative services now to experience a new level of personalized healthcare!</strong>
-            we are revolutionizing the healthcare industry through cutting-edge Electronic Health Records (EHR) solutions.
-            Our mission is to streamline medical data management, enhance patient care, and empower healthcare providers with intelligent, secure,
-            and efficient digital tools.
+        <div className="max-w-4xl mx-auto mb-12">
+          <p className="text-white leading-relaxed mb-4">
+            At <strong>ITP</strong>, we are committed to revolutionizing healthcare through cutting-edge AI technology. Our innovative AI Services are designed to empower you with intelligent health insights and personalized medical support.
+          </p>
+          
+          <ul className="text-white leading-relaxed space-y-3 text-left max-w-2xl mx-auto mb-6">
+            <li>✓ <strong>Disease Predictor</strong> - Analyze symptoms and receive potential health predictions with insights into various diseases and conditions</li>
+            <li>✓ <strong>Mental Health Analyzer</strong> - Explore mental health topics and get instant analysis for better well-being</li>
+            <li>✓ <strong>Medical Assistant ChatBot</strong> - Get instant medical insights by asking about symptoms, treatments, and causes</li>
+          </ul>
+          
+          <p className="text-white text-center font-semibold">
+            Try these innovative services now to experience a new level of personalized healthcare!
           </p>
         </div>
 

@@ -14,11 +14,11 @@ import { assets } from '../../assets/assets';
 
 const Footer = () => {
   return (
-    <footer className="bg-[#000000] text-[#C69749] py-12">
+    <footer className="bg-[#000000] text-white py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Grid layout */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 items-start text-center md:text-left">
-          
+
           {/* Logo & Tagline */}
           <div className="flex flex-col items-center md:items-start">
             <Image
@@ -28,7 +28,7 @@ const Footer = () => {
               height={200}
               className="mb-4"
             />
-            <p className="text-sm text-[#C69749]/80 max-w-xs">
+            <p className="text-sm text-white/80 max-w-xs">
               Revolutionizing healthcare through AI and smart systems for a better tomorrow.
             </p>
           </div>
@@ -37,10 +37,10 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4 text-[#C69749]">Quick Links</h3>
             <ul className="space-y-2 text-sm">
-              <li><Link href="#top" className="hover:text-white">Home</Link></li>
-              <li><Link href="#services" className="hover:text-white">Services</Link></li>
-              <li><Link href="#about" className="hover:text-white">About</Link></li>
-              <li><Link href="#contact" className="hover:text-white">Contact</Link></li>
+              <li><Link href="#top" className="text-white hover:text-white">Home</Link></li>
+              <li><Link href="#services" className="text-white hover:text-white">Services</Link></li>
+              <li><Link href="#about" className="text-white hover:text-white">About</Link></li>
+              <li><Link href="#contact" className="text-white hover:text-white">Contact</Link></li>
             </ul>
           </div>
 
@@ -48,28 +48,11 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4 text-[#C69749]">Connect With Us</h3>
 
-            {/* Raza Khan */}
-            <div className="mb-6">
-              <p className="font-medium mb-2">Raza Khan</p>
-              <div className="flex justify-center md:justify-start gap-4">
-                <a href="https://www.linkedin.com/in/raza-khan-922612296/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="hover:text-white text-xl">
-                  <FontAwesomeIcon icon={faLinkedin} />
-                </a>
-                <a href="https://www.facebook.com/raza.khanzada.756" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="hover:text-white text-xl">
-                  <FontAwesomeIcon icon={faFacebook} />
-                </a>
-                <a href="https://www.instagram.com/_raza_kz?igsh=MTRqbXV3eWxuMGt2bw==" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="hover:text-white text-xl">
-                  <FontAwesomeIcon icon={faInstagram} />
-                </a>
-                <a href="https://github.com/Razakhan143" target="_blank" rel="noopener noreferrer" aria-label="GitHub" className="hover:text-white text-xl">
-                  <FontAwesomeIcon icon={faGithub} />
-                </a>
-              </div>
-            </div>
+
 
             {/* Hammad Masood */}
             <div>
-              <p className="font-medium mb-2">Hammad Masood</p>
+              <p className="font-medium mb-2 text-white">Hammad Masood</p>
               <div className="flex justify-center md:justify-start gap-4">
                 <a href="https://www.linkedin.com/in/hammad-masood26?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="hover:text-white text-xl">
                   <FontAwesomeIcon icon={faLinkedin} />
@@ -81,6 +64,26 @@ const Footer = () => {
                   <FontAwesomeIcon icon={faInstagram} />
                 </a>
                 <a href="https://github.com/hammad-masood26" target="_blank" rel="noopener noreferrer" aria-label="GitHub" className="hover:text-white text-xl">
+                  <FontAwesomeIcon icon={faGithub} />
+                </a>
+              </div>
+            </div>
+
+            
+            {/* Raza Khan */}
+            <div className="mt-6">
+              <p className="font-medium mb-2 text-white">Raza Khan</p>
+              <div className="flex justify-center md:justify-start gap-4">
+                <a href="https://www.linkedin.com/in/raza-khan-922612296/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="hover:text-white text-xl">
+                  <FontAwesomeIcon icon={faLinkedin} />
+                </a>
+                <a href="https://www.facebook.com/raza.khanzada.756" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="hover:text-white text-xl">
+                  <FontAwesomeIcon icon={faFacebook} />
+                </a>
+                <a href="https://www.instagram.com/_raza_kz?igsh=MTRqbXV3eWxuMGt2bw==" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="hover:text-white text-xl">
+                  <FontAwesomeIcon icon={faInstagram} />
+                </a>
+                <a href="https://github.com/Razakhan143" target="_blank" rel="noopener noreferrer" aria-label="GitHub" className="hover:text-white text-xl">
                   <FontAwesomeIcon icon={faGithub} />
                 </a>
               </div>

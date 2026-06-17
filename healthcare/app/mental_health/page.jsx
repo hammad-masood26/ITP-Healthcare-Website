@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -6,6 +5,7 @@ import { auth, db } from '../firebase/config';
 import { doc, getDoc, collection, addDoc, serverTimestamp, runTransaction } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 
 export default function Chatbot() {
     const [message, setMessage] = useState('');
@@ -79,10 +79,13 @@ export default function Chatbot() {
                     botResponse: responseText,
                     condition: responseText
                 });
+                toast.success('Analysis saved successfully!');
             }
         } catch (error) {
             console.error('Error:', error);
-            setResponse(`⚠️ Error: ${error.message || 'Could not connect to the server'}`);
+            const errorMsg = error.message || 'Could not connect to the server';
+            toast.error(errorMsg);
+            setResponse('');
         } finally {
             setLoading(false);
         }

@@ -48,10 +48,10 @@ const Contact = () => {
     return (
         <section
             id="contact"
-            className="py-16 px-6 md:px-12 lg:px-24 text-[#C69749] text-center bg-black/50 z-0"
+            className="py-16 px-6 md:px-12 lg:px-24 text-white text-center bg-black/50 z-0"
         >
-            <h2 className="text-3xl font-bold mb-4">Contact Us</h2>
-            <p className="text-lg text-[#C69749]/80 max-w-2xl mx-auto">
+            <h2 className="text-3xl font-bold mb-4 text-[#C69749]">Contact Us</h2>
+            <p className="text-lg text-white/80 max-w-2xl mx-auto">
                 Have questions, Share Feedback or need a demo? Get in touch with us!
             </p>
 

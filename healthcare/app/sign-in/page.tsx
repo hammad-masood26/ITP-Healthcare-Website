@@ -6,8 +6,8 @@ import { auth, db } from '../firebase/config';
 import { useRouter } from 'next/navigation';
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 import { FcGoogle } from 'react-icons/fc';
-import { FaFacebook } from 'react-icons/fa';
-import { collection, addDoc, serverTimestamp, runTransaction, doc, getDoc } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, runTransaction, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import Link from 'next/link';
 
 const SignIn = () => {
@@ -116,6 +116,75 @@ const SignIn = () => {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    setError('');
+    setLoading(true);
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      // Fetch or create user in Firestore
+      const userDocRef = doc(db, 'users', user.uid);
+      const userDoc = await getDoc(userDocRef);
+      let userRole = 'user';
+
+      if (!userDoc.exists()) {
+        // Create new user record if doesn't exist
+        await setDoc(userDocRef, {
+          uid: user.uid,
+          name: user.displayName || 'User',
+          email: user.email,
+          profilePicture: user.photoURL || '',
+          createdAt: serverTimestamp(),
+          lastLogin: serverTimestamp(),
+          status: 'active',
+          role: 'user',
+          emailVerified: user.emailVerified,
+          profileComplete: false,
+          accountType: 'google',
+          loginCount: 1,
+          metadata: {
+            signUpMethod: 'google',
+            ipAddress: '',
+            userAgent: typeof window !== 'undefined' ? window.navigator.userAgent : ''
+          }
+        });
+      } else {
+        userRole = userDoc.data().role || 'user';
+        // Update last login
+        await updateDoc(userDocRef, {
+          lastLogin: serverTimestamp()
+        });
+      }
+
+      // Log the login
+      const serialNo = await getNextLoginSerial();
+      await addDoc(collection(db, `${userRole}_logins`), {
+        serialNo,
+        email: user.email,
+        userId: user.uid,
+        timestamp: serverTimestamp(),
+        role: userRole,
+      });
+
+      // Set session and redirect
+      sessionStorage.setItem('userRole', userRole);
+      router.push(userRole === 'admin' ? '/admin_panel' : '/');
+    } catch (error: any) {
+      console.error('Google Sign-in Error:', error);
+      if (error.code === 'auth/popup-closed-by-user') {
+        setError('Sign-in was cancelled. Please try again.');
+      } else if (error.code === 'auth/popup-blocked') {
+        setError('Pop-up was blocked. Please enable pop-ups and try again.');
+      } else {
+        setError(error.message || 'Failed to sign in with Google. Please try again.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[##69749] flex items-center justify-center p-2">
       <div className="flex flex-col lg:flex-row bg-white rounded-2xl shadow-lg overflow-hidden max-w-5xl w-full">
@@ -150,16 +219,21 @@ const SignIn = () => {
             <label className="block text-sm mb-1 text-[#282A3A]">Password</label>
             <input
               type={showPassword ? 'text' : 'password'}
-              placeholder="ie. JhonDoe@008"
+              placeholder="e.g: Abc123@!"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleSignIn();
+                }
+              }}
               className="w-full px-4 py-3 pr-10 border border-[#735F32] bg-transparent text-[#282A3A] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C69749] placeholder-[#735F32]"
               disabled={loading || authLoading}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className={`absolute right-3 top-10 transform -translate-y-1/2 text-[#735F32] hover:text-[#C69749] ${loading || authLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`absolute right-3 top-1/2 -translate-y-1/2 text-[#735F32] hover:text-[#C69749] ${loading || authLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
               disabled={loading || authLoading}
             >
               {showPassword ? <AiOutlineEyeInvisible size={20} /> : <AiOutlineEye size={20} />}
@@ -216,18 +290,12 @@ const SignIn = () => {
 
           <div className="space-y-3">
             <button
+              onClick={handleGoogleSignIn}
               className={`w-full flex items-center justify-center gap-2 bg-transparent border border-[#735F32] py-2 rounded-lg hover:bg-[#f4f4f4] text-[#282A3A] transition ${loading || authLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
               disabled={loading || authLoading}
             >
               <FcGoogle size={20} />
               <span className="text-sm">Sign in with Google</span>
-            </button>
-            <button
-              className={`w-full flex items-center justify-center gap-2 bg-transparent border border-[#735F32] py-2 rounded-lg hover:bg-[#f4f4f4] text-[#282A3A] transition ${loading || authLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-              disabled={loading || authLoading}
-            >
-              <FaFacebook size={20} className="text-[#1877F2]" />
-              <span className="text-sm">Sign in with Facebook</span>
             </button>
           </div>
 

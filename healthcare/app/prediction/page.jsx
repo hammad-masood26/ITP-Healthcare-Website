@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { auth, db } from '../../app/firebase/config';
 import { doc, getDoc, collection, addDoc, serverTimestamp, runTransaction } from 'firebase/firestore';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 
 export default function ConditionPredictor() {
   const [description, setDescription] = useState('');
@@ -63,7 +64,7 @@ export default function ConditionPredictor() {
       console.log("Prediction response from backend:", data.prediction);
 
       if (typeof data.prediction === 'string') {
-        alert(data.prediction);
+        toast.error(data.prediction);
       } else if (data.prediction) {
         setPrediction(data.prediction);
 
@@ -80,15 +81,16 @@ export default function ConditionPredictor() {
             doctor: data.prediction.doctor || 'General Physician',
             riskLevel: data.prediction["risk level"] || 'Medium'
           });
+          toast.success('Prediction saved successfully!');
         }
       } else if (data.error) {
-        alert("Server Error: " + data.error);
+        toast.error(data.error);
       } else {
-        alert("Unexpected server response.");
+        toast.error('Unexpected server response.');
       }
     } catch (err) {
       console.error("Request error:", err);
-      alert('Failed to connect to prediction server.');
+      toast.error('Failed to connect to prediction server.');
     } finally {
       setLoading(false);
     }

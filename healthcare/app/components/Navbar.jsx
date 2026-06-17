@@ -76,7 +76,7 @@ const Navbar = () => {
                     {!user ? (
                         <a
                             href="/sign-in"
-                            className="hidden lg:flex items-center gap-3 px-6 py-2 border border-[#C69749] text-[#C69749] font-semibold rounded-full bg-transparent hover:bg-[#C69749]/10 transition"
+                            className="hidden lg:flex items-center gap-3 px-6 py-2 border border-white text-white font-semibold rounded-full bg-transparent hover:border-[#C69749] hover:text-[#C69749] transition"
                         >
                             Login
                             <Image src={assets.arrow_icon} className="w-3 " alt="Arrow Icon" />
