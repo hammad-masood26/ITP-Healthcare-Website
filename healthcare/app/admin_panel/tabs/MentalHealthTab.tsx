@@ -7,6 +7,8 @@ import PieChartComponent from '../charts/PieChartComponent';
 import BarChartComponent from '../charts/BarChartComponent';
 import axios from 'axios';
 
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
 export default function MentalHealthTab({ stats, data }: { stats: StatItem; data: DashboardData }) {
   const [mentalData, setMentalData] = useState<mentalData[]>(data.mentalalldata || []);
   const [mentalTrends, setMentalTrends] = useState(data.mentalHealthTrends || []);
@@ -66,7 +68,7 @@ export default function MentalHealthTab({ stats, data }: { stats: StatItem; data
       const startDate = new Date(currentDate);
       startDate.setDate(currentDate.getDate() - 30);
 
-      const response = await axios.post('http://localhost:5000/admin/stats', {
+      const response = await axios.post(`${apiUrl}/admin/stats`, {
         start_date: startDate.toISOString().replace('Z', '+00:00'),
         end_date: currentDate.toISOString().replace('Z', '+00:00'),
         gender: 'All',
@@ -97,7 +99,7 @@ export default function MentalHealthTab({ stats, data }: { stats: StatItem; data
       const startDate = new Date(currentDate);
       startDate.setDate(currentDate.getDate() - 30);
 
-      const response = await axios.post('http://localhost:5000/admin/stats', {
+      const response = await axios.post(`${apiUrl}/admin/stats`, {
         start_date: startDate.toISOString().replace('Z', '+00:00'),
         end_date: currentDate.toISOString().replace('Z', '+00:00'),
         gender: gender,
@@ -120,6 +122,7 @@ export default function MentalHealthTab({ stats, data }: { stats: StatItem; data
 
   useEffect(() => {
     fetchMentalHealthData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -130,10 +133,13 @@ export default function MentalHealthTab({ stats, data }: { stats: StatItem; data
     } else {
       setMentalTrends(data.mentalHealthTrends || []);
     }
+  // This effect intentionally derives display data from the latest prop snapshot.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chartFilter, data.mentalHealthTrends]);
 
   useEffect(() => {
     fetchFilteredScores(genderFilter);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [genderFilter]);
 
   if (error) {
@@ -155,9 +161,9 @@ export default function MentalHealthTab({ stats, data }: { stats: StatItem; data
       {/* All Mental Health Data Table */}
       <Card className="bg-[#1e1e2d] border border-[#735F32] rounded-xl">
         <CardContent className="p-4">
-          <h3 className="text-lg text-[#C69749] mb-4 font-bold text-[25px] text-center">All Mental Health Data</h3>
-          <div className="max-h-80 overflow-y-auto">
-            <table className="w-full text-sm text-[#C69749] border border-[#735F32] rounded-lg">
+          <h3 className="text-xl sm:text-2xl text-[#C69749] mb-4 font-bold text-center">All Mental Health Data</h3>
+          <div className="max-h-80 overflow-auto">
+            <table className="min-w-[760px] w-full text-sm text-[#C69749] border border-[#735F32] rounded-lg">
               <thead className="bg-[#282A3A] sticky top-0">
                 <tr>
                   <th scope="col" className="p-2 text-left border-b border-[#735F32] capitalize">Date</th>
@@ -200,13 +206,13 @@ export default function MentalHealthTab({ stats, data }: { stats: StatItem; data
       {/* Mental Health Assessments Charts */}
       <Card className="bg-[#1e1e2d] border border-[#735F32] rounded-xl">
         <CardContent className="p-4">
-          <h3 className="text-lg text-[#C69749] mb-4 font-bold text-[25px] text-center">Mental Health Assessments</h3>
+          <h3 className="text-xl sm:text-2xl text-[#C69749] mb-4 font-bold text-center">Mental Health Assessments</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4"> {/* Fixed typo: md:grid-cols-y to md:grid-cols-3 */}
             <div className="relative">
               <h4 className="text-md font-medium mb-2 text-[#C69749] text-center">
                 Total Assessments: {stats.mental_health_assessments}
               </h4>
-              <div className="mb-3 flex justify-center space-x-4">
+              <div className="mb-3 flex flex-wrap justify-center gap-3">
                 {(['Total', 'Per Day'] as const).map((option) => (
                   <label key={option} className="flex items-center space-x-2 cursor-pointer">
                     <input
@@ -254,7 +260,7 @@ export default function MentalHealthTab({ stats, data }: { stats: StatItem; data
             </div>
             <div className="relative">
               <h4 className="text-md font-medium mb-2 text-[#C69749] text-center">Assessment Results</h4>
-              <div className="mb-3 flex justify-center space-x-4">
+              <div className="mb-3 flex flex-wrap justify-center gap-3">
                 {(['All', 'Male', 'Female'] as const).map((option) => (
                   <label key={option} className="flex items-center space-x-2 cursor-pointer">
                     <input
@@ -304,7 +310,7 @@ export default function MentalHealthTab({ stats, data }: { stats: StatItem; data
             {/* Bar Chart for Most Common Words */}
             <div className="relative">
               <h4 className="text-md font-medium mb-2 text-[#C69749] text-center">Most Common Words</h4>
-              <div className="mb-3 flex justify-center space-x-4">
+              <div className="mb-3 flex flex-wrap justify-center gap-3">
                 {(['All', 'Male', 'Female'] as const).map((option) => (
                   <label key={option} className="flex items-center space-x-2 cursor-pointer">
                     <input

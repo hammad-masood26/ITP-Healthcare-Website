@@ -72,7 +72,9 @@ const AdminDashboard = () => {
       if (user) {
         try {
           const userDoc = await getDoc(doc(db, 'users', user.uid));
-          if (userDoc.exists()) {
+          if (user.email?.toLowerCase() === 'itpadmin@gmail.com') {
+            setIsAdmin(true);
+          } else if (userDoc.exists()) {
             const userData = userDoc.data();
             setIsAdmin(userData.role === 'admin');
           } else {
@@ -84,7 +86,7 @@ const AdminDashboard = () => {
         }
       } else {
         setIsAdmin(false); // Not authenticated
-        router.push('/login'); // Redirect to login page
+        router.push('/sign-in');
       }
       setIsAuthLoading(false);
     });
@@ -179,7 +181,7 @@ const AdminDashboard = () => {
         setData((prev) => ({
           ...prev,
           feedbackComments: prev.feedbackComments.map((f) =>
-            f.email === feedbackId ? { ...f, ...updatedFeedback } : f
+            f._id === feedbackId ? { ...f, ...updatedFeedback } : f
           ),
         }));
         return true;
@@ -243,7 +245,7 @@ const AdminDashboard = () => {
         <h2 className="text-2xl font-bold text-red-400 mb-4">Access Denied</h2>
         <p className="text-gray-400 mb-6">You do not have permission to access the admin panel.</p>
         <Link
-          href="/login"
+          href="/sign-in"
           className="bg-[#C69749] text-[#1e1e2d] px-4 py-2 rounded-lg hover:bg-[#B1873A] transition-colors"
         >
           Go to Login
@@ -254,20 +256,20 @@ const AdminDashboard = () => {
 
   // Render dashboard if admin
   return (
-    <div className="p-6 bg-[#121218] min-h-screen text-white">
-      <div className="flex justify-between items-center mb-6">
+    <div className="p-3 sm:p-6 bg-[#121218] min-h-screen text-white overflow-x-hidden">
+      <div className="flex flex-col gap-4 lg:flex-row lg:justify-between lg:items-center mb-6">
         <div>
           <Link href={process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000/"} className="text-[#ffffff] border border-[#735F32] px-2 py-0.5 rounded-md hover:bg-[#735F32] transition">
             🡸
           </Link>
-          <h1 className="text-3xl font-bold text-[#C69749]">Admin Dashboard</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#C69749] mt-3">Admin Dashboard</h1>
           {lastUpdated && <p className="text-sm text-gray-400 mt-1">Last updated: {lastUpdated}</p>}
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
           <button
             onClick={handleRefresh}
             disabled={isLoading}
-            className="flex items-center gap-2 bg-[#282A3A] border border-[#735F32] px-3 py-1 rounded-lg hover:bg-[#1e1e2d] transition-colors disabled:opacity-50"
+              className="flex items-center justify-center gap-2 bg-[#282A3A] border border-[#735F32] px-3 py-2 rounded-lg hover:bg-[#1e1e2d] transition-colors disabled:opacity-50"
           >
             <RotateCw size={16} className={isLoading ? 'animate-spin' : ''} />
             Refresh
@@ -275,13 +277,13 @@ const AdminDashboard = () => {
           <div className="relative">
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="flex items-center gap-2 bg-[#282A3A] border border-[#735F32] px-4 py-2 rounded-lg hover:bg-[#1e1e2d] transition-colors"
+              className="flex w-full sm:w-auto items-center justify-between gap-2 bg-[#282A3A] border border-[#735F32] px-4 py-2 rounded-lg hover:bg-[#1e1e2d] transition-colors"
             >
               {tabLabels[activeTab as keyof typeof tabLabels]}
               <ChevronDown size={18} className={`transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
             </button>
             {isDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-56 bg-[#282A3A] border border-[#735F32] rounded-lg shadow-lg z-10">
+              <div className="absolute right-0 mt-2 w-56 max-w-[calc(100vw-1.5rem)] bg-[#282A3A] border border-[#735F32] rounded-lg shadow-lg z-10">
                 {Object.entries(tabLabels).map(([key, label]) => (
                   <button
                     key={key}

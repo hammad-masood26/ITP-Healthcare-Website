@@ -14,7 +14,7 @@ import { assets } from '../../assets/assets';
 
 const Footer = () => {
   return (
-    <footer className="bg-[#000000] text-white py-12">
+    <footer className="bg-[#000000] text-white py-10 sm:py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Grid layout */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 items-start text-center md:text-left">
@@ -26,7 +26,7 @@ const Footer = () => {
               alt="ITP Logo"
               width={200}
               height={200}
-              className="mb-4"
+              className="mb-4 w-36 sm:w-44 lg:w-48 h-auto"
             />
             <p className="text-sm text-white/80 max-w-xs">
               Revolutionizing healthcare through AI and smart systems for a better tomorrow.
@@ -95,7 +95,7 @@ const Footer = () => {
         <hr className="my-10 border-[#735F32]" />
 
         {/* Footer bottom text */}
-        <div className="text-center text-sm text-[#735F32]">
+        <div className="text-center text-xs sm:text-sm text-[#735F32] leading-6">
           &copy; {new Date().getFullYear()} ITP — All rights reserved. Built with ❤️ by Raza Khan and Hammad Masood.
         </div>
       </div>

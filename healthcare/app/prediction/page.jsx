@@ -98,25 +98,25 @@ export default function ConditionPredictor() {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#000000] via-[#282A3A] to-[#C69749] flex items-center justify-center p-6">
-      <div className="bg-white shadow-2xl rounded-2xl p-8 max-w-xl w-full border border-[#282A3A]">
-        <div className="flex justify-between items-center font-extrabold mb-4">
+    <div className="min-h-screen bg-gradient-to-br from-[#000000] via-[#282A3A] to-[#C69749] flex items-center justify-center p-3 sm:p-6">
+      <div className="bg-white shadow-2xl rounded-2xl p-5 sm:p-8 max-w-xl w-full border border-[#282A3A]">
+        <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center font-extrabold mb-4">
           <Link href={process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"} className="text-[#000000] border border-[#735F32] px-2 py-0.5 rounded-md hover:bg-[#735F32] transition">
             🡸
           </Link>
 
           {userName && (
-            <p className="text-lg font-medium text-center text-[#000000] mb-3">
+            <p className="text-sm sm:text-lg font-medium text-center sm:text-right text-[#000000] break-words">
               <span>👤</span>
               Hello, <span className="text-[#000000] font-bold">{userName.toUpperCase()}</span>
             </p>
           )}
         </div>
 
-        <h1 className="text-3xl font-bold text-center mb-6 text-[#C69749]">
+        <h1 className="text-2xl sm:text-3xl font-bold text-center mb-6 text-[#C69749] leading-tight">
           🧠 Patient Health Condition Predictor
         </h1>
-        <h3 className="text-1xl font-bold text-center mb-6 text-[#000000] leading-relaxed">
+        <h3 className="text-sm sm:text-base font-bold text-center mb-6 text-[#000000] leading-relaxed">
           "An ounce of prevention is worth a pound of cure." <br />
           "Health is not valued till sickness comes."
         </h3>
@@ -131,7 +131,7 @@ export default function ConditionPredictor() {
               name="description"
               rows="5"
               placeholder="e.g. Fever, headache, and sore throat for the past 3 days"
-              className="w-full border border-[#735F32] rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-[#C69749]"
+              className="w-full border border-[#735F32] rounded-lg p-3 sm:p-4 focus:outline-none focus:ring-2 focus:ring-[#C69749]"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               required

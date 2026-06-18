@@ -45,7 +45,7 @@ export default function MedicalAssistanceTab({
   const [userGender, setUserGender] = useState('');
   const [timeframe, setTimeframe] = useState<'Today' | 'Overall'>('Overall');
   const [gender, setGender] = useState<'All' | 'Male' | 'Female'>('All');
-  const [filteredTrends, setFilteredTrends] = useState<Trend[]>(data.mentalHealthTrends);
+  const [filteredTrends, setFilteredTrends] = useState<Trend[]>(data.medicalBotTrends || []);
   const [medicalData] = useState<MedicalBotAllData[]>(data.medicalBotalldata || []);
   const [filteredCategories, setFilteredCategories] = useState<Category[]>(data.medicalBotCategories);
   const [isLoading, setIsLoading] = useState(false);
@@ -67,14 +67,14 @@ export default function MedicalAssistanceTab({
 
   useEffect(() => {
     if (timeframe === 'Today') {
-      const todayData = data.mentalHealthTrends.filter((trend) =>
+      const todayData = (data.medicalBotTrends || []).filter((trend) =>
         isDateToday(trend.date)
       );
       setFilteredTrends(todayData);
     } else {
-      setFilteredTrends(data.mentalHealthTrends);
+      setFilteredTrends(data.medicalBotTrends || []);
     }
-  }, [timeframe, data.mentalHealthTrends]);
+  }, [timeframe, data.medicalBotTrends]);
 
   useEffect(() => {
     const fetchFilteredData = async () => {
@@ -96,9 +96,8 @@ export default function MedicalAssistanceTab({
         });
 
         const analytics = response.data.analytics;
-        console.log('API response for filteredCategories:', analytics.categories); // Debug API response
-        if (analytics.categories && analytics.categories.length > 0) {
-          setFilteredCategories(analytics.categories);
+        if (analytics.medicalBotCategories && analytics.medicalBotCategories.length > 0) {
+          setFilteredCategories(analytics.medicalBotCategories);
         } else {
           console.warn('No valid categories in API response, retaining existing data');
           setFilteredCategories(data.medicalBotCategories); // Fallback to initial data
@@ -126,18 +125,13 @@ export default function MedicalAssistanceTab({
     return words.slice(0, limit).join(' ') + '...';
   };
 
-  // Debug filteredCategories state
-  useEffect(() => {
-    console.log('filteredCategories updated:', filteredCategories);
-  }, [filteredCategories]);
-
   return (
     <div className="space-y-6">
       <Card className="bg-[#1e1e2d] border border-[#735F32] rounded-xl">
         <CardContent className="p-4">
-          <h3 className="text-lg text-[#C69749] mb-4 font-bold text-[25px] text-center">All Mental Health Data</h3>
-          <div className="max-h-80 overflow-y-auto">
-            <table className="w-full text-sm text-[#C69749] border border-[#735F32] rounded-lg">
+          <h3 className="text-xl sm:text-2xl text-[#C69749] mb-4 font-bold text-center">All Medical Assistance Data</h3>
+          <div className="max-h-80 overflow-auto">
+            <table className="min-w-[760px] w-full text-sm text-[#C69749] border border-[#735F32] rounded-lg">
               <thead className="bg-[#282A3A] sticky top-0">
                 <tr>
                   <th scope="col" className="p-2 text-left border-b border-[#735F32] capitalize">Date</th>
@@ -177,7 +171,7 @@ export default function MedicalAssistanceTab({
                           </button>
                         )}
                       </td>
-                      <td className="p-2 border-b border-[#735F32] capitalize">{entry.categoryQuestion || 'Unknown'}</td>
+                      <td className="p-2 border-b border-[#735F32] capitalize">{entry.categoryQuestion || entry.categroryQuestion || 'Unknown'}</td>
                     </tr>
                   ))
                 ) : (
@@ -201,7 +195,7 @@ export default function MedicalAssistanceTab({
             <div>
               <div className="mb-3">
                 <h4 className="text-sm font-medium text-[#C69749] mb-2">Filter Trends By</h4>
-                <div className="flex space-x-4">
+                <div className="flex flex-wrap gap-3">
                   {(['Overall', 'Today'] as const).map((option) => (
                     <label key={option} className="flex items-center space-x-2 cursor-pointer">
                       <input
@@ -237,7 +231,7 @@ export default function MedicalAssistanceTab({
             <div>
               <div className="mb-3">
                 <h4 className="text-sm font-medium text-[#C69749] mb-2">Filter by Gender</h4>
-                <div className="flex space-x-4">
+                <div className="flex flex-wrap gap-3">
                   {(['All', 'Male', 'Female'] as const).map((option) => (
                     <label key={option} className="flex items-center space-x-2 cursor-pointer">
                       <input

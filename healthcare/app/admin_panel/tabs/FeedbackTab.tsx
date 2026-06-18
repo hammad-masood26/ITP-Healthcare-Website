@@ -4,6 +4,7 @@ import { Card, CardContent } from '../../ui/card';
 import { StatItem, DashboardData, FeedbackItem, FeedbackAllData, FeedbackSentiment } from '../types';
 import { Reply, Send, Loader2 } from 'lucide-react';
 import PieChartComponent from '../charts/PieChartComponent';
+import toast from 'react-hot-toast';
 
 interface FeedbackItemProps {
   feedback: FeedbackItem;
@@ -14,26 +15,25 @@ const FeedbackItemComponent = ({ feedback, onReplySubmit }: FeedbackItemProps) =
   const [isReplying, setIsReplying] = useState(false);
   const [replyMessage, setReplyMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const handleReply = async () => {
     if (!replyMessage.trim()) {
-      setError('Reply message cannot be empty.');
+      toast.error('Reply message cannot be empty.');
       return;
     }
 
     setIsSending(true);
-    setError(null);
     try {
       const success = await onReplySubmit(feedback._id, replyMessage);
       if (success) {
         setIsReplying(false);
         setReplyMessage('');
+        toast.success('Reply sent successfully.');
       } else {
-        setError('Failed to send reply. Please try again.');
+        toast.error('Failed to send reply. Please try again.');
       }
     } catch (err) {
-      setError('An error occurred while sending the reply.');
+      toast.error('An error occurred while sending the reply.');
       console.error('Reply submission error:', err);
     } finally {
       setIsSending(false);
@@ -48,14 +48,14 @@ const FeedbackItemComponent = ({ feedback, onReplySubmit }: FeedbackItemProps) =
 
   return (
     <div className="p-4 bg-[#282A3A] rounded-lg border border-[#735F32]">
-      <div className="flex justify-between items-start">
-        <div>
+      <div className="flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-start">
+        <div className="min-w-0">
           <p className="font-medium text-[#C69749]">{feedback.name || 'Anonymous'}</p>
-          <p className="text-sm text-gray-400">{feedback.email || 'Unknown'}</p>
+          <p className="text-sm text-gray-400 break-words">{feedback.email || 'Unknown'}</p>
         </div>
         <p className="text-xs text-[#C69749]">{formatDate(feedback.timestamp)}</p>
       </div>
-      <p className="mt-2 text-sm text-gray-200">{feedback.message || 'No message'}</p>
+       <p className="mt-2 text-sm text-gray-200 break-words">{feedback.message || 'No message'}</p>
 
       {feedback.reply && (
         <div className="mt-3 p-3 bg-[#1e1e2d] rounded-lg border-l-4 border-[#C69749]">
@@ -84,13 +84,11 @@ const FeedbackItemComponent = ({ feedback, onReplySubmit }: FeedbackItemProps) =
                 rows={3}
                 aria-label="Reply to feedback"
               />
-              {error && <p className="text-sm text-red-500">{error}</p>}
               <div className="flex justify-end gap-2">
                 <button
                   onClick={() => {
                     setIsReplying(false);
                     setReplyMessage('');
-                    setError(null);
                   }}
                   className="px-3 py-1 text-sm bg-gray-600 rounded hover:bg-gray-500 transition-colors"
                   aria-label="Cancel reply"
@@ -158,9 +156,9 @@ export default function FeedbackTab({
       {/* Feedback Data Table */}
       <Card className="bg-[#1e1e2d] border border-[#735F32] rounded-xl">
         <CardContent className="p-4">
-          <h3 className="text-lg text-[#C69749] mb-4 font-bold text-[25px] text-center">All Feedback Data</h3>
-          <div className="max-h-80 overflow-y-auto">
-            <table className="w-full text-sm text-[#C69749] border border-[#735F32] rounded-lg">
+          <h3 className="text-xl sm:text-2xl text-[#C69749] mb-4 font-bold text-center">All Feedback Data</h3>
+          <div className="max-h-80 overflow-auto">
+            <table className="min-w-[760px] w-full text-sm text-[#C69749] border border-[#735F32] rounded-lg">
               <thead className="bg-[#282A3A] sticky top-0">
                 <tr>
                   <th scope="col" className="p-2 text-left border-b border-[#735F32] capitalize">Date</th>
@@ -207,7 +205,7 @@ export default function FeedbackTab({
       {/* Sentiment Pie Chart */}
       <Card className="bg-[#1e1e2d] border border-[#735F32] rounded-xl">
         <CardContent className="p-4">
-          <h3 className="text-lg text-[#C69749] mb-4 font-bold text-[25px] text-center">Feedback Sentiment Distribution</h3>
+          <h3 className="text-xl sm:text-2xl text-[#C69749] mb-4 font-bold text-center">Feedback Sentiment Distribution</h3>
           {hasFeedback || hasSentimentData ? (
 
                 <PieChartComponent
@@ -228,7 +226,7 @@ export default function FeedbackTab({
       {/* Feedback Comments with Reply System */}
       <Card className="bg-[#1e1e2d] border border-[#735F32] rounded-xl">
         <CardContent className="p-4">
-          <h3 className="text-lg text-[#C69749] mb-4 font-bold text-[25px] text-center">User Feedback & Comments</h3>
+          <h3 className="text-xl sm:text-2xl text-[#C69749] mb-4 font-bold text-center">User Feedback & Comments</h3>
           <div className="grid grid-cols-1 gap-4">
             <div>
               <h4 className="text-md font-medium mb-2 text-[#C69749] text-center">

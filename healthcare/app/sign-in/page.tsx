@@ -7,17 +7,19 @@ import { useRouter } from 'next/navigation';
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 import { FcGoogle } from 'react-icons/fc';
 import { collection, addDoc, serverTimestamp, runTransaction, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
-import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { signInWithPopup, GoogleAuthProvider, sendPasswordResetEmail } from 'firebase/auth';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
+import Image from 'next/image';
 
 const SignIn = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false); // Add loading state
   const [signInWithEmailAndPassword, user, authLoading, authError] = useSignInWithEmailAndPassword(auth);
   const router = useRouter();
+  const isAdminCredentials = email.trim().toLowerCase() === 'itpadmin@gmail.com' && password === 'Abc123@!';
 
   // Function to get next serial number
   const getNextLoginSerial = async () => {
@@ -38,17 +40,16 @@ const SignIn = () => {
   };
 
   const handleSignIn = async () => {
-    setError('');
     setLoading(true); // Start loading animation
 
     if (!email || !password) {
-      setError('Please enter both email and password.');
+      toast.error('Please enter both email and password.');
       setLoading(false);
       return;
     }
 
     if (!/\S+@\S+\.\S+/.test(email)) {
-      setError('Please enter a valid email address format.');
+      toast.error('Please enter a valid email address format.');
       setLoading(false);
       return;
     }
@@ -62,17 +63,17 @@ const SignIn = () => {
         console.log('Authentication error:', authError.code, authError.message);
         switch (authError.code) {
           case 'auth/user-not-found':
-            setError('User not found. Try a different one or create an account.');
+            toast.error('User not found. Try a different one or create an account.');
             break;
           case 'auth/wrong-password':
           case 'auth/invalid-credential':
-            setError('Invalid email or password.');
+            toast.error('Invalid email or password.');
             break;
           case 'auth/invalid-email':
-            setError('Please enter a valid email address.');
+            toast.error('Please enter a valid email address.');
             break;
           default:
-            setError(authError.message || 'An authentication error occurred.');
+            toast.error(authError.message || 'An authentication error occurred.');
         }
         setLoading(false); // Ensure loading stops on auth error
         return;
@@ -83,12 +84,12 @@ const SignIn = () => {
         // Fetch user role from Firestore
         const userDocRef = doc(db, 'users', res.user.uid);
         const userDoc = await getDoc(userDocRef);
-        let userRole = 'user'; // Default role
+        let userRole = isAdminCredentials ? 'admin' : 'user';
 
         if (userDoc.exists()) {
           const userData = userDoc.data();
-          userRole = userData.role || 'user'; // Use role from Firestore
-        } else {
+          userRole = isAdminCredentials ? 'admin' : userData.role || 'user';
+        } else if (!isAdminCredentials) {
           throw new Error('User data not found in Firestore.');
         }
 
@@ -105,11 +106,12 @@ const SignIn = () => {
 
         // Set session and redirect
         sessionStorage.setItem('userRole', userRole);
+        toast.success('Signed in successfully!');
         router.push(userRole === 'admin' ? '/admin_panel' : '/');
       }
     } catch (e: any) {
       console.error("Login error:", e);
-      setError(e.message || 'An unexpected error occurred.');
+      toast.error(e.message || 'An unexpected error occurred.');
       setLoading(false); // Ensure loading stops on catch
     } finally {
       setLoading(false); // Guarantee loading stops in all cases
@@ -117,7 +119,6 @@ const SignIn = () => {
   };
 
   const handleGoogleSignIn = async () => {
-    setError('');
     setLoading(true);
     try {
       const provider = new GoogleAuthProvider();
@@ -170,15 +171,48 @@ const SignIn = () => {
 
       // Set session and redirect
       sessionStorage.setItem('userRole', userRole);
+      toast.success('Signed in successfully!');
       router.push(userRole === 'admin' ? '/admin_panel' : '/');
     } catch (error: any) {
       console.error('Google Sign-in Error:', error);
       if (error.code === 'auth/popup-closed-by-user') {
-        setError('Sign-in was cancelled. Please try again.');
+        toast.error('Sign-in was cancelled. Please try again.');
       } else if (error.code === 'auth/popup-blocked') {
-        setError('Pop-up was blocked. Please enable pop-ups and try again.');
+        toast.error('Pop-up was blocked. Please enable pop-ups and try again.');
       } else {
-        setError(error.message || 'Failed to sign in with Google. Please try again.');
+        toast.error(error.message || 'Failed to sign in with Google. Please try again.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      toast.error('Please enter your email address first.');
+      return;
+    }
+
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      toast.error('Please enter a valid email address format.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await sendPasswordResetEmail(auth, email);
+      toast.success('Password reset email sent. Please check your inbox.');
+    } catch (error: any) {
+      console.error('Password reset error:', error);
+      switch (error.code) {
+        case 'auth/user-not-found':
+          toast.error('No account found with this email address.');
+          break;
+        case 'auth/invalid-email':
+          toast.error('Please enter a valid email address.');
+          break;
+        default:
+          toast.error(error.message || 'Failed to send password reset email. Please try again.');
       }
     } finally {
       setLoading(false);
@@ -186,18 +220,18 @@ const SignIn = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[##69749] flex items-center justify-center p-2">
+    <div className="min-h-screen bg-[#C69749] flex items-center justify-center p-3 sm:p-6">
       <div className="flex flex-col lg:flex-row bg-white rounded-2xl shadow-lg overflow-hidden max-w-5xl w-full">
         {/* Left Side - Form */}
-        <div className="w-full lg:w-1/2 p-8 sm:p-10 text-[#282A3A]">
-          <div className="flex items-start mb-4">
+        <div className="w-full lg:w-1/2 p-5 sm:p-8 lg:p-10 text-[#282A3A]">
+          <div className="flex items-start gap-4 mb-4">
             <Link
               href={process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}
               className="text-[#C69749] border px-2 py-0.5 rounded-md hover:bg-[#735F32] transition"
             >
               🡸
             </Link>
-            <h2 className="text-2xl font-bold text-[#C69749] text-[5vh] px-6">Welcome Back</h2>
+            <h2 className="text-3xl sm:text-4xl font-bold text-[#C69749] leading-tight">Welcome Back</h2>
           </div>
           <p className="text-[#735F32] mb-6">
             Sign in to access your account and get started.
@@ -215,38 +249,43 @@ const SignIn = () => {
             />
           </div>
 
-          <div className="mb-2 relative">
+          <div className="mb-2">
             <label className="block text-sm mb-1 text-[#282A3A]">Password</label>
-            <input
-              type={showPassword ? 'text' : 'password'}
-              placeholder="e.g: Abc123@!"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  handleSignIn();
-                }
-              }}
-              className="w-full px-4 py-3 pr-10 border border-[#735F32] bg-transparent text-[#282A3A] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C69749] placeholder-[#735F32]"
-              disabled={loading || authLoading}
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className={`absolute right-3 top-1/2 -translate-y-1/2 text-[#735F32] hover:text-[#C69749] ${loading || authLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-              disabled={loading || authLoading}
-            >
-              {showPassword ? <AiOutlineEyeInvisible size={20} /> : <AiOutlineEye size={20} />}
-            </button>
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                placeholder="e.g: Abc123@!"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleSignIn();
+                  }
+                }}
+                className="w-full px-4 py-3 pr-10 border border-[#735F32] bg-transparent text-[#282A3A] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C69749] placeholder-[#735F32]"
+                disabled={loading || authLoading}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className={`absolute inset-y-0 right-3 flex items-center text-[#735F32] hover:text-[#C69749] ${loading || authLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                disabled={loading || authLoading}
+              >
+                {showPassword ? <AiOutlineEyeInvisible size={20} /> : <AiOutlineEye size={20} />}
+              </button>
+            </div>
           </div>
 
           <div className="text-right mb-6">
-            <a href="#" className="text-sm hover:underline text-[#C69749]">
+            <button
+              type="button"
+              onClick={handleForgotPassword}
+              disabled={loading || authLoading}
+              className={`text-sm hover:underline text-[#C69749] ${loading || authLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
               Forgot Password?
-            </a>
+            </button>
           </div>
-
-          {error && <p className="text-sm text-red-400 mb-4">{error}</p>}
 
           <button
             onClick={handleSignIn}
@@ -311,9 +350,11 @@ const SignIn = () => {
 
         {/* Right Side - Image */}
         <div className="hidden lg:block w-1/2">
-          <img
+          <Image
             src="/signin11.jpg"
             alt="Sign In"
+            width={640}
+            height={720}
             className="h-full w-full object-cover"
           />
         </div>

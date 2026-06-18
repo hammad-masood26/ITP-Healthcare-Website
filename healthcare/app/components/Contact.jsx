@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { db } from '../firebase/config';
 import { collection, addDoc,serverTimestamp } from 'firebase/firestore';
+import toast from 'react-hot-toast';
 
 const Contact = () => {
 
@@ -13,13 +14,13 @@ const Contact = () => {
         
         // Basic validation
         if (!name.trim() || !email.trim() || !message.trim()) {
-          alert("Please fill in all fields");
+          toast.error("Please fill in all fields");
           return;
         }
       
         // Simple email validation
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-          alert("Please enter a valid email address");
+          toast.error("Please enter a valid email address");
           return;
         }
       
@@ -36,35 +37,34 @@ const Contact = () => {
           setEmail('');
           setMessage('');
           
-          // Success feedback
-          alert("Message sent successfully!");
+          toast.success("Message sent successfully!");
           
         } catch (error) {
           console.error("Error writing document:", error);
-          alert(`Failed to send message. ${error.message}`);
+          toast.error(`Failed to send message. ${error.message}`);
         }
       };
 
     return (
         <section
             id="contact"
-            className="py-16 px-6 md:px-12 lg:px-24 text-white text-center bg-black/50 z-0"
+            className="py-16 px-4 sm:px-6 md:px-12 lg:px-24 text-white text-center bg-black/50 z-0"
         >
             <h2 className="text-3xl font-bold mb-4 text-[#C69749]">Contact Us</h2>
-            <p className="text-lg text-white/80 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg text-white/80 max-w-2xl mx-auto">
                 Have questions, Share Feedback or need a demo? Get in touch with us!
             </p>
 
             <form
                 onSubmit={submitData}
-                className="mt-10 max-w-lg mx-auto bg-black/60 p-8 rounded-xl shadow-lg"
+                className="mt-10 max-w-lg mx-auto bg-black/60 p-5 sm:p-8 rounded-xl shadow-lg"
             >
                 <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Your Name"
-                    className="w-full p-3 mb-4 rounded-md bg-[#282A3A] text-white placeholder-[#C69749]/60 border border-[#735F32] focus:outline-none focus:ring-2 focus:ring-[#C69749]"
+                    className="w-full p-3 mb-4 rounded-md bg-[#282A3A] text-white placeholder-white/70 border border-[#735F32] focus:outline-none focus:ring-2 focus:ring-[#C69749]"
                     required
                 />
                 <input
@@ -72,14 +72,14 @@ const Contact = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Your Email"
-                    className="w-full p-3 mb-4 rounded-md bg-[#282A3A] text-white placeholder-[#C69749]/60 border border-[#735F32] focus:outline-none focus:ring-2 focus:ring-[#C69749]"
+                    className="w-full p-3 mb-4 rounded-md bg-[#282A3A] text-white placeholder-white/70 border border-[#735F32] focus:outline-none focus:ring-2 focus:ring-[#C69749]"
                     required
                 />
                 <textarea
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     placeholder="Your Message"
-                    className="w-full p-3 mb-6 rounded-md bg-[#282A3A] text-white placeholder-[#C69749]/60 border border-[#735F32] focus:outline-none focus:ring-2 focus:ring-[#C69749]"
+                    className="w-full p-3 mb-6 rounded-md bg-[#282A3A] text-white placeholder-white/70 border border-[#735F32] focus:outline-none focus:ring-2 focus:ring-[#C69749]"
                     rows="5"
                     required
                 ></textarea>

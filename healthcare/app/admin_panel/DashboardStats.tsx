@@ -13,12 +13,12 @@ const iconMap = {
 
 export default function DashboardStats({ stats, loading }: { stats: StatItem; loading: boolean }) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 mb-6">
       {Object.entries(stats).map(([key, value]) => (
         <Card key={key} className="bg-[#1e1e2d] border border-[#735F32] rounded-xl hover:shadow-lg transition-shadow">
           <CardContent className="flex items-center justify-between p-4">
-            <div>
-              <p className="text-sm text-gray-400 capitalize">{key.replace(/_/g, ' ')}</p>
+            <div className="min-w-0">
+              <p className="text-sm text-gray-400 capitalize break-words">{key.replace(/_/g, ' ')}</p>
               <h2 className="text-2xl font-bold text-[#C69749]">
                 {loading ? (
                   <Loader2 className="animate-spin h-6 w-6" />

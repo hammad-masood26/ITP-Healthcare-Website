@@ -67,7 +67,8 @@ export interface CategoryItem {
 export type CategoryData = CategoryItem[];
 
 export interface ValueItem {
-  label: string;
+  label?: string;
+  name?: string;
   value: number;
 }
 export type Diseasealldata = StructuredData;
@@ -163,6 +164,7 @@ export interface MedicalBotAllData {
   botResponse: string;
   serialNo: number;
   categoryQuestion?: string;
+  categroryQuestion?: string;
 }
 
 export interface UserInsight {

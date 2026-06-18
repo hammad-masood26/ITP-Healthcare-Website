@@ -263,22 +263,21 @@ export default function MedicalChatbot() {
   };
 
   const clearChatHistory = () => {
-    if (confirm('Are you sure you want to clear all chat history?')) {
-      setChatHistory([]);
-      localStorage.removeItem('chatHistory');
-    }
+    setChatHistory([]);
+    localStorage.removeItem('chatHistory');
+    toast.success('Chat history cleared.');
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-900 text-gray-100">
+    <div className="flex min-h-screen bg-gray-900 text-gray-100 overflow-x-hidden">
       <button 
-        className="md:hidden fixed top-4 left-4 z-50 p-2 rounded-md bg-gray-800 text-white"
+        className="md:hidden fixed top-3 left-3 z-50 p-2 rounded-md bg-gray-800 text-white"
         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
       >
         {isSidebarOpen ? '✕' : '☰'}
       </button>
 
-      <div className={`fixed inset-y-0 left-0 w-64 bg-gray-800 p-4 border-r border-gray-700 transition-transform duration-300 z-40
+      <div className={`fixed inset-y-0 left-0 w-[min(16rem,85vw)] bg-gray-800 p-4 border-r border-gray-700 transition-transform duration-300 z-40
         ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
         <div className="mb-6 flex items-center justify-between">
           <a href="#top" className="flex items-center">
@@ -346,22 +345,24 @@ export default function MedicalChatbot() {
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col md:ml-64">
-        <header className="bg-gray-800 border-b border-gray-700 p-4 flex justify-between items-center">
+      {isSidebarOpen && <div className="fixed inset-0 z-30 bg-black/50 md:hidden" onClick={() => setIsSidebarOpen(false)} />}
+
+      <div className="flex-1 flex min-w-0 flex-col md:ml-64">
+        <header className="bg-gray-800 border-b border-gray-700 p-3 sm:p-4 pl-14 md:pl-4 flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
           <Link href={process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"} className="text-[#ffffff] border px-2 py-0.5 rounded-md hover:bg-[#735Ff2] transition">
             🡸
           </Link>
-          <h1 className="text-xl font-bold">Medical Knowledge Assistant</h1>
-          <div className="text-sm text-gray-400">
+          <h1 className="text-lg sm:text-xl font-bold text-center">Medical Knowledge Assistant</h1>
+          <div className="text-xs sm:text-sm text-gray-400 text-center sm:text-right">
             {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-4 pb-32">
+        <main className="flex-1 overflow-y-auto p-3 sm:p-4 pb-40 sm:pb-32">
           {chatHistory.length === 0 && !isTyping && !loading && (
             <div className="flex flex-col items-center justify-center h-full text-center px-4">
-              <h2 className="text-3xl font-bold text-blue-200 mb-4">Hello, {userName.toUpperCase() || 'User'}</h2>
-              <p className="text-xl text-gray-300 mb-8">How can I assist you with medical information today?</p>
+              <h2 className="text-2xl sm:text-3xl font-bold text-blue-200 mb-4 break-words">Hello, {userName.toUpperCase() || 'User'}</h2>
+              <p className="text-base sm:text-xl text-gray-300 mb-8">How can I assist you with medical information today?</p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl w-full">
                 <button 
                   onClick={() => setUserInput('What are the symptoms of diabetes?')}
@@ -416,7 +417,7 @@ export default function MedicalChatbot() {
                       </div>
                     )}
                   </div>
-                  <div className="whitespace-pre-wrap">
+                  <div className="whitespace-pre-wrap break-words">
                     {formatResponse(chat.message)}
                   </div>
                 </div>
@@ -428,7 +429,7 @@ export default function MedicalChatbot() {
                 <div className="max-w-[90%] md:max-w-[80%] rounded-lg p-4 bg-gray-800">
                   <div className="text-sm font-semibold mb-1">AI Assistant</div>
                   <div className="text-sm font-medium mb-1 text-[rgb(255, 26, 26)]">Our Bot is Attention Seeker. so, Please Stick with this page:</div>
-                  <div className="whitespace-pre-wrap">
+                  <div className="whitespace-pre-wrap break-words">
                     {formatResponse(animationText || typingText)}
                     <span className="inline-block w-2 h-4 bg-gray-400 ml-1 animate-blink"></span>
                   </div>
@@ -440,19 +441,19 @@ export default function MedicalChatbot() {
           </div>
         </main>
 
-        <div className="fixed bottom-0 left-0 right-0 md:left-64 bg-gray-800 border-t border-gray-700 p-4">
+        <div className="fixed bottom-0 left-0 right-0 md:left-64 bg-gray-800 border-t border-gray-700 p-3 sm:p-4">
           <form
             onSubmit={(e) => {
               e.preventDefault();
               handleChat();
             }}
-            className="flex items-center space-x-4 max-w-4xl mx-auto"
+            className="flex items-end gap-2 sm:gap-4 max-w-4xl mx-auto"
           >
             <textarea
               rows={1}
               value={userInput}
               onChange={(e) => setUserInput(e.target.value)}
-              className="flex-grow p-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none max-h-40 overflow-y-auto"
+              className="min-w-0 flex-grow p-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none max-h-40 overflow-y-auto"
               placeholder="Ask about symptoms, treatments, etc. We only supports Textual data."
               disabled={loading}
               onKeyDown={(e) => {

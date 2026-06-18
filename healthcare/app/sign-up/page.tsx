@@ -8,6 +8,8 @@ import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 import { FcGoogle } from 'react-icons/fc';
 import Link from 'next/link';
 import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import toast from 'react-hot-toast';
+import Image from 'next/image';
 
 type Gender = 'male' | 'female' | 'other' | 'prefer-not-to-say';
 
@@ -17,7 +19,6 @@ const SignUp = () => {
   const [password, setPassword] = useState('');
   const [gender, setGender] = useState<Gender>('prefer-not-to-say');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false); // New loading state
   const router = useRouter();
 
@@ -40,30 +41,29 @@ const SignUp = () => {
   };
 
   const handleSignUp = async () => {
-    setError('');
     setLoading(true); // Start loading animation
 
     if (!name.trim()) {
-      setError('Name is required.');
+      toast.error('Name is required.');
       setLoading(false); // Stop loading if validation fails
       return;
     }
 
     if (!/\S+@\S+\.\S+/.test(email)) {
-      setError('Please enter a valid email address.');
+      toast.error('Please enter a valid email address.');
       setLoading(false);
       return;
     }
 
     if (password.length < 6) {
-      setError('Password must be at least 6 characters long.');
+      toast.error('Password must be at least 6 characters long.');
       setLoading(false);
       return;
     }
 
     const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{6,}$/;
     if (!passwordRegex.test(password)) {
-      setError('Password must contain at least one uppercase letter, one number, and one special character (e.g., !@#$%^&*).');
+      toast.error('Password must contain at least one uppercase letter, one number, and one special character (e.g., !@#$%^&*).');
       setLoading(false);
       return;
     }
@@ -125,6 +125,7 @@ const SignUp = () => {
       setEmail('');
       setPassword('');
       setGender('prefer-not-to-say');
+      toast.success('Account created successfully! Please sign in.');
       router.push('/sign-in');
     
     } catch (e: any) {
@@ -133,22 +134,22 @@ const SignUp = () => {
       if (e.code) {
         switch (e.code) {
           case 'auth/email-already-in-use':
-            setError('This email is already in use. Please use a different one.');
+            toast.error('This email is already in use. Please use a different one.');
             break;
           case 'auth/invalid-email':
-            setError('Invalid email address.');
+            toast.error('Invalid email address.');
             break;
           case 'auth/weak-password':
-            setError('Password should be at least 6 characters.');
+            toast.error('Password should be at least 6 characters.');
             break;
           case 'auth/network-request-failed':
-            setError('Network error. Please check your internet connection and try again.');
+            toast.error('Network error. Please check your internet connection and try again.');
             break;
           default:
-            setError(e.message || 'Something went wrong. Please try again.');
+            toast.error(e.message || 'Something went wrong. Please try again.');
         }
       } else {
-        setError(e.message || 'Something went wrong.');
+        toast.error(e.message || 'Something went wrong.');
       }
     } finally {
       setLoading(false); // Stop loading animation after success or error
@@ -156,7 +157,6 @@ const SignUp = () => {
   };
 
   const handleGoogleSignUp = async () => {
-    setError('');
     setLoading(true);
     try {
       const provider = new GoogleAuthProvider();
@@ -186,15 +186,17 @@ const SignUp = () => {
       }, { merge: true });
 
       sessionStorage.setItem('user', 'true');
-      router.push('/sign-in');
+      sessionStorage.setItem('userRole', 'user');
+      toast.success('Signed in successfully!');
+      router.push('/');
     } catch (error: any) {
       console.error('Google Sign-up Error:', error);
       if (error.code === 'auth/popup-closed-by-user') {
-        setError('Sign-up was cancelled. Please try again.');
+        toast.error('Sign-up was cancelled. Please try again.');
       } else if (error.code === 'auth/popup-blocked') {
-        setError('Pop-up was blocked. Please enable pop-ups and try again.');
+        toast.error('Pop-up was blocked. Please enable pop-ups and try again.');
       } else {
-        setError(error.message || 'Failed to sign up with Google. Please try again.');
+        toast.error(error.message || 'Failed to sign up with Google. Please try again.');
       }
     } finally {
       setLoading(false);
@@ -202,12 +204,12 @@ const SignUp = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[##C69749] flex items-center justify-center p-4">
-      <div className="flex flex-col lg:flex-row bg-white rounded-2xl shadow-lg overflow-hidden max-w-4xl w-full min-h-screen">
+    <div className="min-h-screen bg-[#C69749] flex items-center justify-center p-3 sm:p-6">
+      <div className="flex flex-col lg:flex-row bg-white rounded-2xl shadow-lg overflow-hidden max-w-4xl w-full">
         {/* Left - Form */}
-        <div className="w-full lg:w-1/2 p-8 sm:p-10 text-[#282A3A]">
+        <div className="w-full lg:w-1/2 p-5 sm:p-8 lg:p-10 text-[#282A3A]">
         
-          <div className="flex items-start mb-4">
+          <div className="flex items-start gap-4 mb-4">
             <Link
               href={process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"} 
               className="text-[#C69749] border px-2 py-0.5 rounded-md hover:bg-[#735F32] transition"
@@ -215,7 +217,7 @@ const SignUp = () => {
               🡸
             </Link>
 
-            <h2 className="text-2xl font-bold text-[#C69749] text-[5vh] px-6 "> Create Account</h2>
+            <h2 className="text-3xl sm:text-4xl font-bold text-[#C69749] leading-tight">Create Account</h2>
           </div>
           <p className="text-[#735F32] mb-2 leading-normal">Start your journey with us. Join and get full access to amazing features.</p>
 
@@ -232,7 +234,7 @@ const SignUp = () => {
           </div>
 
           <label className="block text-sm mb-1 text-[#000000]">Gender:</label>
-          <div className="grid grid-cols-5 gap-6 mb-4">
+          <div className="grid grid-cols-1 min-[420px]:grid-cols-3 gap-3 mb-4">
             {(['male', 'female', 'other'] as Gender[]).map((option) => (
               <label
                 key={option}
@@ -272,32 +274,32 @@ const SignUp = () => {
             {/* Empty div for spacing consistency */}
           </div>
 
-          <div className="mb-2 relative">
+          <div className="mb-2">
             <label className="block text-sm mb-1 text-[#282A3A]">Password:</label>
-            <input
-              type={showPassword ? 'text' : 'password'}
-              placeholder="e.g: Abc123@!"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  handleSignUp();
-                }
-              }}
-              className="w-full px-4 py-3 pr-10 border border-[#735F32] bg-transparent text-[#282A3A] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C69749] placeholder-[#735F32]"
-              disabled={loading}
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className={`absolute right-3 short the text tin about ustop-1/2 -translate-y-1/2 text-[#735F32] hover:text-[#C69749] ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-              disabled={loading}
-            >
-              {showPassword ? <AiOutlineEyeInvisible size={20} /> : <AiOutlineEye size={20} />}
-            </button>
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                placeholder="e.g: Abc123@!"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleSignUp();
+                  }
+                }}
+                className="w-full px-4 py-3 pr-10 border border-[#735F32] bg-transparent text-[#282A3A] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C69749] placeholder-[#735F32]"
+                disabled={loading}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className={`absolute inset-y-0 right-3 flex items-center text-[#735F32] hover:text-[#C69749] ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                disabled={loading}
+              >
+                {showPassword ? <AiOutlineEyeInvisible size={20} /> : <AiOutlineEye size={20} />}
+              </button>
+            </div>
           </div>
-
-          {error && <p className="text-red-400 text-sm mb-2">{error}</p>}
 
           <button
             onClick={handleSignUp}
@@ -362,9 +364,11 @@ const SignUp = () => {
 
         {/* Right - Image */}
         <div className="hidden lg:block w-1/2">
-          <img
+          <Image
             src="/signin9.jpg"
             alt="Sign up visual"
+            width={640}
+            height={720}
             className="h-full w-full object-cover"
           />
         </div>

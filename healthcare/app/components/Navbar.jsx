@@ -53,17 +53,16 @@ const Navbar = () => {
     return (
         <>
             <nav
-                className={`w-full fixed px-4 lg:px-8 xl:px-[8%] py-4 flex items-center justify-between z-50 transition-all duration-500 ${
-                    isScroll ? 'bg-black/50 shadow-md backdrop-blur-md' : 'bg-transparent'
-                }`}
+                className={`w-full fixed px-4 sm:px-6 lg:px-8 xl:px-[8%] py-3 sm:py-4 flex items-center justify-between z-50 transition-all duration-500 ${isScroll ? 'bg-black/60 shadow-md backdrop-blur-md' : 'bg-transparent'
+                    }`}
             >
                 <a href="#top">
-                    <Image src={assets.logo} className="w-30 cursor-pointer" alt="Logo" />
+                    <Image src={assets.logo} className="w-24 sm:w-28 md:w-30 cursor-pointer" alt="Logo" />
                 </a>
 
                 {/* Desktop Navigation */}
                 <ul
-                    className={`hidden md:flex items-center gap-6 lg:gap-8 text-white font-medium`}
+                    className={`hidden md:flex items-center gap-4 lg:gap-8 text-sm lg:text-base text-white font-medium`}
                 >
                     <li><a className="hover:text-[#C69749] transition" href="#">Home</a></li>
                     <li><a className="hover:text-[#C69749] transition" href="#services">Services</a></li>
@@ -76,7 +75,7 @@ const Navbar = () => {
                     {!user ? (
                         <a
                             href="/sign-in"
-                            className="hidden lg:flex items-center gap-3 px-6 py-2 border border-white text-white font-semibold rounded-full bg-transparent hover:border-[#C69749] hover:text-[#C69749] transition"
+                            className="hidden lg:flex items-center gap-3 px-5 xl:px-6 py-2 border border-white text-white font-semibold rounded-full bg-transparent hover:border-[#C69749] hover:text-[#C69749] transition"
                         >
                             Login
                             <Image src={assets.arrow_icon} className="w-3 " alt="Arrow Icon" />
@@ -85,12 +84,12 @@ const Navbar = () => {
                         <div>
                             <button
                                 onClick={toggleDropdown}
-                                className="hidden lg:flex items-center gap-2 px-6 py-2 border border-[#C69749] text-white font-semibold rounded-full bg-transparent hover:bg-[#C69749]/10 transition"
+                                className="hidden lg:flex items-center gap-2 max-w-56 px-5 xl:px-6 py-2 border border-[#C69749] text-white font-semibold rounded-full bg-transparent hover:bg-[#C69749]/10 transition truncate"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" className="w-5 h-5 text-[#C69749]" viewBox="0 0 24 24">
                                     <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zM12 14.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2V19.2c0-3.2-6.4-4.8-9.6-4.8z" />
                                 </svg>
-                                {userName.toUpperCase() || 'Welcome'}
+                                <span className="truncate">{userName.toUpperCase() || 'Welcome'}</span>
                                 <span className={`transition-transform ${showDropdown ? 'rotate-180' : ''}`}>
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
@@ -109,7 +108,7 @@ const Navbar = () => {
                     )}
 
                     {/* Mobile Menu Toggle */}
-                    <button className="block md:hidden ml-3" onClick={openMenu}>
+                    <button className="block md:hidden ml-3 rounded-md p-2 bg-black/40" onClick={openMenu} aria-label="Open navigation menu">
                         <Image src={assets.menu_black} alt="Menu Icon" className="w-6" />
                     </button>
                 </div>
@@ -117,7 +116,7 @@ const Navbar = () => {
                 {/* Mobile Menu */}
                 <ul
                     ref={sideMenuRef}
-                    className="flex md:hidden flex-col gap-6 pt-20 px-8 fixed right-0 top-0 bottom-0 w-64 z-50 h-screen bg-black/90 text-white transition-transform duration-500 transform translate-x-full"
+                    className="flex md:hidden flex-col gap-6 pt-20 px-8 fixed right-0 top-0 bottom-0 w-[min(18rem,85vw)] z-50 h-dvh bg-black/95 text-white transition-transform duration-500 transform translate-x-full"
                 >
                     <div className="absolute right-6 top-6" onClick={closeMenu}>
                         <Image src={assets.close_black} alt="Close Menu" className="w-5 cursor-pointer invert" />

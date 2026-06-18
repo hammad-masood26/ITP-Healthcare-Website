@@ -7,6 +7,8 @@ import PieChartComponent from '../charts/PieChartComponent';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
 export default function DiseasePredictorTab({
   data,
   stats,
@@ -56,7 +58,7 @@ export default function DiseasePredictorTab({
       try {
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-        const response = await axios.post('http://localhost:5000/admin/stats', {
+        const response = await axios.post(`${apiUrl}/admin/stats`, {
           start_date: thirtyDaysAgo.toISOString().replace('Z', '+00:00'),
           end_date: new Date().toISOString().replace('Z', '+00:00'),
           gender: 'All',
@@ -72,9 +74,11 @@ export default function DiseasePredictorTab({
       }
     };
     fetchAllData();
+  // Fetch initial table data once when the tab mounts.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const fetchData = async (endpoint: string, setData: Function, setLoadingKey: keyof typeof isLoading, setErrorKey: keyof typeof errors, params: any) => {
+  const fetchData = async <K extends keyof DashboardData>(endpoint: K, setData: (value: DashboardData[K]) => void, setLoadingKey: keyof typeof isLoading, setErrorKey: keyof typeof errors, params: Record<string, string>) => {
     setIsLoading({ ...isLoading, [setLoadingKey]: true });
     try {
       const startDate = viewMode === 'Today'
@@ -83,18 +87,18 @@ export default function DiseasePredictorTab({
       const endDate = viewMode === 'Today'
         ? new Date().toISOString().split('T')[0] + 'T23:59:59.999Z'
         : new Date().toISOString().replace('Z', '+00:00');
-      const response = await axios.post('http://localhost:5000/admin/stats', {
+      const response = await axios.post(`${apiUrl}/admin/stats`, {
         ...params,
         start_date: startDate,
         end_date: endDate,
       });
       const analytics = response.data.analytics || {};
-      const newData = analytics[endpoint] || [];
-      setData(endpoint === 'diseaseTrends' && viewMode === 'Today' ? calculateTodayTrends(newData) : newData);
+      const newData = (analytics[endpoint] || []) as DashboardData[K];
+      setData(endpoint === 'diseaseTrends' && viewMode === 'Today' ? (calculateTodayTrends(newData as TrendData) as DashboardData[K]) : newData);
     } catch (error: any) {
       console.error(`Error fetching ${endpoint} data:`, error);
       setErrors({ ...errors, [setErrorKey]: `Failed to fetch ${endpoint} data. Showing fallback data.` });
-      setData(data[endpoint as keyof DashboardData] || []);
+      setData((data[endpoint] || []) as DashboardData[K]);
     } finally {
       setIsLoading({ ...isLoading, [setLoadingKey]: false });
     }
@@ -102,47 +106,53 @@ export default function DiseasePredictorTab({
 
   useEffect(() => {
     fetchData('diseaseTrends', setFilteredTrends, 'trends', 'trends', {});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [viewMode]);
 
   useEffect(() => {
     fetchData('diseaseCategories', setFilteredCategories, 'categories', 'categories', {
       gender: genderCategories,
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [genderCategories]);
 
   useEffect(() => {
     fetchData('diseaseRiskLevels', setFilteredRiskLevels, 'riskLevels', 'riskLevels', {
       gender: genderRiskLevels,
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [genderRiskLevels]);
 
   useEffect(() => {
     fetchData('diseaseRiskLevels', setFilteredRiskLevelsTable, 'riskLevelsTable', 'riskLevelsTable', {
       gender: genderRiskLevelsTable,
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [genderRiskLevelsTable]);
 
   useEffect(() => {
     fetchData('diseaseDoctors', setFilteredDoctors, 'doctors', 'doctors', {
       gender: genderDoctors,
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [genderDoctors]);
 
   useEffect(() => {
     fetchData('diseaseMedicine', setFilteredMedicine, 'medicine', 'medicine', {
       gender: genderMedicine,
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [genderMedicine]);
 
   return (
     <div className="relative space-y-6">
       <Card className="bg-[#1e1e2d] border border-[#735F32] rounded-xl">
         <CardContent className="p-4">
-          <h1 className="text-lg text-[#C69749] mb-10 font-bold text-[35px] text-center">Disease Prediction Analytics</h1>
+          <h1 className="text-2xl sm:text-4xl text-[#C69749] mb-8 sm:mb-10 font-bold text-center">Disease Prediction Analytics</h1>
 
-          <h3 className="text-lg text-[#C69749] mb-4 font-bold text-[25px] text-center">All Disease Prediction Data</h3>
-          <div className="max-h-80 overflow-y-auto mb-20">
-            <table className="w-full text-sm text-[#C69749] border border-[#735F32] rounded-lg">
+          <h3 className="text-xl sm:text-2xl text-[#C69749] mb-4 font-bold text-center">All Disease Prediction Data</h3>
+          <div className="max-h-80 overflow-auto mb-12 sm:mb-20">
+            <table className="min-w-[920px] w-full text-sm text-[#C69749] border border-[#735F32] rounded-lg">
               <thead className="bg-[#282A3A] sticky top-0">
                 <tr>
                   <th scope="col" className="p-2 text-left border-b border-[#735F32] capitalize">Date</th>
@@ -156,7 +166,7 @@ export default function DiseasePredictorTab({
               </thead>
               <tbody>
                 {filteredalldata.length > 0 ? (
-                  filteredalldata.reverse().map((alldata, i) => (
+                  [...filteredalldata].reverse().map((alldata, i) => (
                     <tr key={i} className="bg-[#1e1e2d] hover:bg-[#282A3A]">
                       <td className="p-2 border-b border-[#735F32]">{alldata.date || 'N/A'}</td>
                       <td className="p-2 border-b border-[#735F32]">{alldata.userName || 'Anonymous'}</td>
@@ -179,12 +189,12 @@ export default function DiseasePredictorTab({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 mt-6">
             <div className="relative">
-              <h4 className="text-md mb-4 text-[#C69749] font-bold text-[25px] text-center">
+              <h4 className="text-xl sm:text-2xl mb-4 text-[#C69749] font-bold text-center">
                 {viewMode} User Growth: {filteredTrends.reduce((sum, t) => sum + t.count, 0)}
               </h4>
               <div className="mb-4">
                 <h4 className="text-sm font-medium text-[#C69749] mb-2">View Mode for User Growth</h4>
-                <div className="flex space-x-4">
+                <div className="flex flex-wrap gap-3">
                   {(['Total', 'Today'] as const).map((mode) => (
                     <label key={mode} className="flex items-center space-x-2 cursor-pointer">
                       <input
@@ -233,10 +243,10 @@ export default function DiseasePredictorTab({
             </div>
 
             <div className="relative">
-              <h4 className="text-md mb-4 text-[#C69749] font-bold text-[25px] text-center">Risk Level Distribution</h4>
+              <h4 className="text-xl sm:text-2xl mb-4 text-[#C69749] font-bold text-center">Risk Level Distribution</h4>
               <div className="mb-4">
                 <h4 className="text-sm font-medium text-[#C69749] mb-2">Filter by Gender for Risk Levels </h4>
-                <div className="flex space-x-4">
+                <div className="flex flex-wrap gap-3">
                   {(['All', 'Male', 'Female'] as const).map((option) => (
                     <label key={option} className="flex items-center space-x-2 cursor-pointer">
                       <input
@@ -286,10 +296,10 @@ export default function DiseasePredictorTab({
             </div>
 
             <div className="relative">
-              <h4 className="text-md mb-4 text-[#C69749] font-bold text-[25px] text-center">Risk Levels for Predicted Diseases</h4>
+              <h4 className="text-xl sm:text-2xl mb-4 text-[#C69749] font-bold text-center">Risk Levels for Predicted Diseases</h4>
               <div className="mb-4">
                 <h4 className="text-sm font-medium text-[#C69749] mb-2">Filter by Gender for Risk Levels (BarChart)</h4>
-                <div className="flex space-x-4">
+                <div className="flex flex-wrap gap-3">
                   {(['All', 'Male', 'Female'] as const).map((option) => (
                     <label key={option} className="flex items-center space-x-2 cursor-pointer">
                       <input
@@ -327,7 +337,7 @@ export default function DiseasePredictorTab({
                 )}
                 {filteredRiskLevelsTable.length > 0 && (
                   <BarChartComponent
-                    data={filteredRiskLevelsTable.map((item: any) => ({ name: item.label, count: item.value }))}
+                    data={filteredRiskLevelsTable.map((item) => ({ name: item.label || item.name, count: item.value }))}
                     dataKey="count"
                     yAxisKey="count"
                     xAxisKey="name"
@@ -340,10 +350,10 @@ export default function DiseasePredictorTab({
             </div>
 
             <div className="relative">
-              <h4 className="text-md mb-4 text-[#C69749] font-bold text-[25px] text-center">Cures Suggested for Diseases</h4>
+              <h4 className="text-xl sm:text-2xl mb-4 text-[#C69749] font-bold text-center">Cures Suggested for Diseases</h4>
               <div className="mb-4">
                 <h4 className="text-sm font-medium text-[#C69749] mb-2">Filter by Gender for Cures</h4>
-                <div className="flex space-x-4">
+                <div className="flex flex-wrap gap-3">
                   {(['All', 'Male', 'Female'] as const).map((option) => (
                     <label key={option} className="flex items-center space-x-2 cursor-pointer">
                       <input
@@ -376,8 +386,8 @@ export default function DiseasePredictorTab({
                     </div>
                   </div>
                 )}
-                <div className="max-h-60 overflow-y-auto">
-                  <table className="w-full text-sm text-[#C69749] border border-[#735F32] rounded-lg">
+                <div className="max-h-60 overflow-auto">
+                  <table className="min-w-[420px] w-full text-sm text-[#C69749] border border-[#735F32] rounded-lg">
                     <thead className="bg-[#282A3A] sticky top-0">
                       <tr>
                         <th className="p-2 text-left border-b border-[#735F32] capitalize">Cures</th>
@@ -406,9 +416,9 @@ export default function DiseasePredictorTab({
 
             <div className="relative">
               <div className="mb-4">
-                <h4 className="text-md mb-2 text-[#C69749] font-bold text-[25px] text-center">Top Predicted Diseases</h4>
+                <h4 className="text-xl sm:text-2xl mb-2 text-[#C69749] font-bold text-center">Top Predicted Diseases</h4>
                 <h4 className="text-sm font-medium text-[#C69749] mb-2">Filter by Gender for Top Conditions</h4>
-                <div className="flex space-x-4">
+                <div className="flex flex-wrap gap-3">
                   {(['All', 'Male', 'Female'] as const).map((option) => (
                     <label key={option} className="flex items-center space-x-2 cursor-pointer">
                       <input
@@ -450,9 +460,9 @@ export default function DiseasePredictorTab({
                     filteredCategories.map((item, i) => (
                       <div
                         key={i}
-                        className="flex justify-between items-center p-2 bg-[#1e1e2d] rounded-lg hover:bg-[#282A3A]"
+                        className="flex justify-between items-center gap-3 p-2 bg-[#1e1e2d] rounded-lg hover:bg-[#282A3A]"
                       >
-                        <span className="text-sm text-[#C69749] capitalize">{item.name}</span>
+                        <span className="text-sm text-[#C69749] capitalize break-words">{item.name}</span>
                         <span className="text-sm text-[#C69749]">{item.count}</span>
                       </div>
                     ))

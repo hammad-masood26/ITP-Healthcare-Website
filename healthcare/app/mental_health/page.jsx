@@ -92,17 +92,17 @@ export default function Chatbot() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[#000000] via-[#282A3A] to-[#C69749] flex items-center justify-center p-6">
-            <div className="bg-white shadow-2xl rounded-2xl p-8 max-w-xl w-full border border-[#282A3A]">
+        <div className="min-h-screen bg-gradient-to-br from-[#000000] via-[#282A3A] to-[#C69749] flex items-center justify-center p-3 sm:p-6">
+            <div className="bg-white shadow-2xl rounded-2xl p-5 sm:p-8 max-w-xl w-full border border-[#282A3A]">
                 {/* Header Section with Back Button and Username */}
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4">
                     {/* Back Button */}
                     <Link href={process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"} className="text-[#000000] border border-[#735F32] px-2 py-0.5 rounded-md hover:bg-[#735F32] transition">
                         🡸
                     </Link>
                     {/* Username */}
                     {userName && (
-                        <p className="text-lg font-medium text-[#000000]">
+                        <p className="text-sm sm:text-lg font-medium text-[#000000] text-center sm:text-right break-words">
                             <span>👤</span>
                             Hello, <span className="text-[#000000] font-bold">{userName.toUpperCase()}</span>
                         </p>
@@ -110,10 +110,10 @@ export default function Chatbot() {
                 </div>
 
                 {/* Title Section */}
-                <h1 className="text-3xl font-bold text-center mb-6 text-[#C69749]">
+                <h1 className="text-2xl sm:text-3xl font-bold text-center mb-6 text-[#C69749] leading-tight">
                     🧠 Mental Health Analyzer
                 </h1>
-                <h3 className="text-1xl font-bold text-center mb-6 text-[#000000] leading-relaxed">
+                <h3 className="text-sm sm:text-base font-bold text-center mb-6 text-[#000000] leading-relaxed">
                     Your emotional well-being matters deeply <br />
                     Explore your feelings here to foster self-awareness
                 </h3>
@@ -127,7 +127,7 @@ export default function Chatbot() {
                         rows="5"
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
-                        className="w-full p-4 border border-[#735F32] rounded-lg text-[#000000] focus:outline-none focus:ring-2 focus:ring-[#C69749] placeholder:text-[#735F32] resize-none transition-all leading-normal"
+                        className="w-full p-3 sm:p-4 border border-[#735F32] rounded-lg text-[#000000] focus:outline-none focus:ring-2 focus:ring-[#C69749] placeholder:text-[#735F32] resize-none transition-all leading-normal"
                         placeholder="e.g. I'm really worried, I want to cry."
                         required
                     />
@@ -153,7 +153,7 @@ export default function Chatbot() {
                 {/* Prediction Result */}
                 {prediction && (
                     <div className="mt-8 space-y-4">
-                        <div className="p-4 font-bold border border-[#282A3A] bg-white rounded-lg text-[#000000] shadow-sm text-base">
+                        <div className="p-4 font-bold border border-[#282A3A] bg-white rounded-lg text-[#000000] shadow-sm text-sm sm:text-base break-words">
                             💬 YOUR MENTAL STATE IS: <span className="italic font-bold mt-2 text-[#ff0000]">{prediction}</span>
                         </div>
                         <div className="text-xs text-center text-gray-500 mt-2">
