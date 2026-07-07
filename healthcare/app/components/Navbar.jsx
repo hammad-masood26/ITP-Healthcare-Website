@@ -105,7 +105,7 @@ const Navbar = () => {
 
                     {/* Mobile Menu Toggle */}
                     <button className="block md:hidden ml-3 rounded-md p-2 bg-black/40" onClick={openMenu} aria-label="Open navigation menu">
-                        <Image src={assets.menu_black} alt="Menu Icon" className="w-6" />
+                        <Image src={assets.menu_black} alt="Menu Icon" className="w-6 invert" />
                     </button>
                 </div>
 

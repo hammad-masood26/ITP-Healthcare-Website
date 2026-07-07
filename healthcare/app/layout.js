@@ -16,9 +16,6 @@ export const metadata = {
     title: "ITP HealthCare",
     description: "AI-powered healthcare platform for disease prediction, mental health analysis, and medical assistance.",
   },
-  icons: {
-    icon: "/favicon.png",
-  },
 };
 
 export default function RootLayout({ children }) {
