@@ -91,7 +91,7 @@ export default function OverallTab({ stats, data }: { stats: StatItem; data: Das
                   <p className="text-sm font-medium">{feedback.name}</p>
                   <p className="text-xs text-gray-400 truncate">{feedback.message}</p>
                   <p className="text-xs text-[#C69749] mt-1">
-                    {new Date(feedback.timestamp).toLocaleDateString()}
+                    {feedback.timestamp ? new Date(feedback.timestamp).toLocaleDateString() : ''}
                   </p>
                 </div>
               ))}

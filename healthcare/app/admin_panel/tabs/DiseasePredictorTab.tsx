@@ -337,7 +337,7 @@ export default function DiseasePredictorTab({
                 )}
                 {filteredRiskLevelsTable.length > 0 && (
                   <BarChartComponent
-                    data={filteredRiskLevelsTable.map((item) => ({ name: item.label || item.name, count: item.value }))}
+                    data={filteredRiskLevelsTable.map((item) => ({ name: item.label || item.name || '', count: item.value }))}
                     dataKey="count"
                     yAxisKey="count"
                     xAxisKey="name"

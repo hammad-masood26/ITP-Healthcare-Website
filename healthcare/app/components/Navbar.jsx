@@ -2,7 +2,7 @@
 
 import { assets } from '../../assets/assets';
 import Image from 'next/image';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { auth } from '../../app/firebase/config';
 import { signOut } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
@@ -13,14 +13,10 @@ const Navbar = () => {
     const [user, setUser] = useState(null);
     const [userName, setUserName] = useState('');
     const [showDropdown, setShowDropdown] = useState(false);
-    const sideMenuRef = useRef();
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-    const openMenu = () => {
-        sideMenuRef.current.style.transform = 'translateX(0)';
-    };
-    const closeMenu = () => {
-        sideMenuRef.current.style.transform = 'translateX(100%)';
-    };
+    const openMenu = () => setIsMenuOpen(true);
+    const closeMenu = () => setIsMenuOpen(false);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -115,8 +111,7 @@ const Navbar = () => {
 
                 {/* Mobile Menu */}
                 <ul
-                    ref={sideMenuRef}
-                    className="flex md:hidden flex-col gap-6 pt-20 px-8 fixed right-0 top-0 bottom-0 w-[min(18rem,85vw)] z-50 h-dvh bg-black/95 text-white transition-transform duration-500 transform translate-x-full"
+                    className={`flex md:hidden flex-col gap-6 pt-20 px-8 fixed right-0 top-0 bottom-0 w-[min(18rem,85vw)] z-50 h-dvh bg-black/95 text-white transition-transform duration-500 transform ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}
                 >
                     <div className="absolute right-6 top-6" onClick={closeMenu}>
                         <Image src={assets.close_black} alt="Close Menu" className="w-5 cursor-pointer invert" />

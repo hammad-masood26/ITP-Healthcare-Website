@@ -11,8 +11,12 @@ from datetime import datetime, timedelta
 from collections import defaultdict
 from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv()
+# Anchor filesystem paths to this file's directory so the server can be
+# launched from any working directory.
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Load environment variables from this file's directory (CWD-independent).
+load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 # Third-party Libraries
 import numpy as np
@@ -44,6 +48,9 @@ logger = logging.getLogger(__name__)
 # Initialize Firebase
 try:
     firebase_cert_path = os.getenv('FIREBASE_CERT_PATH', r"healthcare/app/firebase/service_account_key.json")
+    # Resolve relative cert paths against this file's directory (CWD-independent).
+    if not os.path.isabs(firebase_cert_path):
+        firebase_cert_path = os.path.join(BASE_DIR, firebase_cert_path)
     firebase_db_url = os.getenv('FIREBASE_DATABASE_URL', 'https://healthcare-website-9afe5.firebaseio.com')
     
     cred = credentials.Certificate(firebase_cert_path)
@@ -95,22 +102,22 @@ def format_timestamp(timestamp):
 MODELS = {}
 try:
     # Load disease prediction models
-    with open('server/disease_material/disease_model.pkl', 'rb') as f:
+    with open(os.path.join(BASE_DIR, 'disease_material/disease_model.pkl'), 'rb') as f:
         MODELS['disease'] = {
             'model': pickle.load(f),
-            'vectorizer': pickle.load(open('server/disease_material/disease_vectorizer.pkl', 'rb')),
-            'le': pickle.load(open('server/disease_material/disease_le.pkl', 'rb')),
-            'label_encoders': pickle.load(open('server/disease_material/disease_label_encoders.pkl', 'rb'))
+            'vectorizer': pickle.load(open(os.path.join(BASE_DIR, 'disease_material/disease_vectorizer.pkl'), 'rb')),
+            'le': pickle.load(open(os.path.join(BASE_DIR, 'disease_material/disease_le.pkl'), 'rb')),
+            'label_encoders': pickle.load(open(os.path.join(BASE_DIR, 'disease_material/disease_label_encoders.pkl'), 'rb'))
         }
-    
+
     # Load mental health models
-    with open('server/mental_material/dep_model.pkl', 'rb') as f:
+    with open(os.path.join(BASE_DIR, 'mental_material/dep_model.pkl'), 'rb') as f:
         dep_model = pickle.load(f)
-    dep_vectorizer = pickle.load(open('server/mental_material/dep_vectorizer.pkl', 'rb'))
-    dep_le = pickle.load(open('server/mental_material/dep_le.pkl', 'rb'))
+    dep_vectorizer = pickle.load(open(os.path.join(BASE_DIR, 'mental_material/dep_vectorizer.pkl'), 'rb'))
+    dep_le = pickle.load(open(os.path.join(BASE_DIR, 'mental_material/dep_le.pkl'), 'rb'))
 
     # Load medical assistance model
-    with open('server/medical_assistance_material/model_embeddings.pkl', 'rb') as f:
+    with open(os.path.join(BASE_DIR, 'medical_assistance_material/model_embeddings.pkl'), 'rb') as f:
         data = pickle.load(f)
         model = data['model']
         question_embeddings = data['embeddings']

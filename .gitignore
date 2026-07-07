@@ -78,3 +78,7 @@ yarn-error.log*
 # ML models
 server/medical_assistance_material/
 server/mental_material/
+
+# Firebase Admin SDK key
+server/firebase/*.json
+server/firebase/hammadmasoodprojects-firebase-adminsdk-vgn88-963cfa3083.json
