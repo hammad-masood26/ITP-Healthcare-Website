@@ -1,2 +1,80 @@
-server/__pycache__
+# =====================================
+# Frontend (Next.js)
+# =====================================
+
+# Dependencies
+healthcare/node_modules/
+
+# Next.js
+healthcare/.next/
+healthcare/out/
+healthcare/build/
+
+# TypeScript
+healthcare/*.tsbuildinfo
+healthcare/next-env.d.ts
+
+# Environment variables
+healthcare/.env*
+!healthcare/.env.example
+
+# Vercel
+healthcare/.vercel/
+
+# Coverage
+healthcare/coverage/
+
+# =====================================
+# Backend (Python)
+# =====================================
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Python cache
+server/__pycache__/
+server/**/*.py[cod]
+*.py[cod]
+*$py.class
+
+# Build files
+server/build/
+server/dist/
+server/*.egg-info/
+
+# Environment variables
+server/.env
+server/.env.*
+!server/.env.example
 .env.local
+
+# Logs
+*.log
+
+# =====================================
+# General
+# =====================================
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+
+# Secrets
+service_account_key.json
+*.pem
+
+# Package manager logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# ML models
+server/medical_assistance_material/
+server/mental_material/

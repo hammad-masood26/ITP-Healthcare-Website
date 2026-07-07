@@ -6,25 +6,35 @@ import re
 import string
 import atexit
 import logging
+import os
 from datetime import datetime, timedelta
 from collections import defaultdict
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Third-party Libraries
 import numpy as np
 import pytz
 import pickle
 from sentence_transformers import util
+# pyrefly: ignore [missing-import]
 from flask import Flask, request, jsonify, Response
 from flask_cors import CORS, cross_origin
 from flask_caching import Cache
 
 # Firebase Admin SDK
+# pyrefly: ignore [missing-import]
 import firebase_admin
 from firebase_admin import auth, credentials, initialize_app, firestore
 
 # Initialize Flask app
 app = Flask(__name__)
-CORS(app)
+
+# Configure CORS with environment variables
+frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:3000')
+CORS(app, resources={r"/*": {"origins": [frontend_url]}})
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
 # Configure logging
@@ -33,9 +43,12 @@ logger = logging.getLogger(__name__)
 
 # Initialize Firebase
 try:
-    cred = credentials.Certificate(r"healthcare\app\firebase\service_account_key.json")  # Update with your correct path
+    firebase_cert_path = os.getenv('FIREBASE_CERT_PATH', r"healthcare/app/firebase/service_account_key.json")
+    firebase_db_url = os.getenv('FIREBASE_DATABASE_URL', 'https://healthcare-website-9afe5.firebaseio.com')
+    
+    cred = credentials.Certificate(firebase_cert_path)
     firebase_admin.initialize_app(cred, {
-        'databaseURL': 'https://healthcare-website-9afe5.firebaseio.com'
+        'databaseURL': firebase_db_url
     })
     db = firestore.client()
     tz = pytz.timezone('Asia/Karachi')
@@ -82,22 +95,22 @@ def format_timestamp(timestamp):
 MODELS = {}
 try:
     # Load disease prediction models
-    with open('server\disease_material\disease_model.pkl', 'rb') as f:
+    with open('server/disease_material/disease_model.pkl', 'rb') as f:
         MODELS['disease'] = {
             'model': pickle.load(f),
-            'vectorizer': pickle.load(open('server\disease_material\disease_vectorizer.pkl', 'rb')),
-            'le': pickle.load(open('server\disease_material\disease_le.pkl', 'rb')),
-            'label_encoders': pickle.load(open('server\disease_material\disease_label_encoders.pkl', 'rb'))
+            'vectorizer': pickle.load(open('server/disease_material/disease_vectorizer.pkl', 'rb')),
+            'le': pickle.load(open('server/disease_material/disease_le.pkl', 'rb')),
+            'label_encoders': pickle.load(open('server/disease_material/disease_label_encoders.pkl', 'rb'))
         }
     
     # Load mental health models
-    with open('server\mental_material\dep_model.pkl', 'rb') as f:
+    with open('server/mental_material/dep_model.pkl', 'rb') as f:
         dep_model = pickle.load(f)
-    dep_vectorizer = pickle.load(open('server\mental_material\dep_vectorizer.pkl', 'rb'))
-    dep_le = pickle.load(open('server\mental_material\dep_le.pkl', 'rb'))
+    dep_vectorizer = pickle.load(open('server/mental_material/dep_vectorizer.pkl', 'rb'))
+    dep_le = pickle.load(open('server/mental_material/dep_le.pkl', 'rb'))
 
     # Load medical assistance model
-    with open('server\medical_assistance_material\model_embeddings.pkl', 'rb') as f:
+    with open('server/medical_assistance_material/model_embeddings.pkl', 'rb') as f:
         data = pickle.load(f)
         model = data['model']
         question_embeddings = data['embeddings']
@@ -628,9 +641,12 @@ def get_recent_feedback():
             doc_data = doc.to_dict()
             date = doc_data.get('date')
             feedback_comments.append({
+                '_id': doc.id,
                 'name': doc_data.get('name', 'Anonymous'),
                 'email': doc_data.get('email', 'Unknown'),
                 'message': doc_data.get('message', ''),
+                'reply': doc_data.get('reply', ''),
+                'replyTimestamp': format_timestamp(doc_data.get('replyTimestamp')),
                 'timestamp': (date.astimezone(tz).isoformat() if isinstance(date, datetime) else date or '')
             })
         logger.info(f"Retrieved {len(feedback_comments)} feedback comments")
@@ -638,6 +654,39 @@ def get_recent_feedback():
     except Exception as e:
         logger.error(f"Error fetching recent feedback: {str(e)}")
         return []
+
+@app.route('/admin/feedback/reply', methods=['POST'])
+def reply_to_feedback():
+    """Save an admin reply on a feedback document."""
+    try:
+        data = request.get_json() or {}
+        feedback_id = data.get('feedbackId')
+        message = data.get('message', '').strip()
+
+        if not feedback_id or not message:
+            return jsonify({'error': 'feedbackId and message are required'}), 400
+
+        feedback_ref = db.collection('feedback').document(feedback_id)
+        feedback_doc = feedback_ref.get()
+        if not feedback_doc.exists:
+            return jsonify({'error': 'Feedback not found'}), 404
+
+        reply_timestamp = datetime.now(tz)
+        feedback_ref.update({
+            'reply': message,
+            'replyTimestamp': reply_timestamp,
+            'status': 'replied'
+        })
+
+        return jsonify({
+            '_id': feedback_id,
+            'reply': message,
+            'replyTimestamp': reply_timestamp.isoformat(),
+            'status': 'replied'
+        })
+    except Exception as e:
+        logger.error(f"Error replying to feedback: {str(e)}", exc_info=True)
+        return jsonify({'error': 'Failed to send reply'}), 500
 
 def get_active_users_count(days):
     try:
@@ -836,4 +885,6 @@ signal.signal(signal.SIGINT, shutdown_handler)
 signal.signal(signal.SIGTERM, shutdown_handler)
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000, threaded=True)
+    port = int(os.getenv('PORT', 5000))
+    debug = os.getenv('DEBUG', 'True').lower() == 'true'
+    app.run(debug=debug, host='0.0.0.0', port=port, threaded=True)
