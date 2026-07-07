@@ -96,7 +96,7 @@ const Footer = () => {
 
         {/* Footer bottom text */}
         <div className="text-center text-xs sm:text-sm text-[#735F32] leading-6">
-          &copy; {new Date().getFullYear()} ITP — All rights reserved. Built with ❤️ by Raza Khan and Hammad Masood.
+          &copy; {new Date().getFullYear()} ITP — All rights reserved. Developed by Hammad Masood and Raza Khan.
         </div>
       </div>
     </footer>

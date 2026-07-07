@@ -359,7 +359,7 @@ const SignUp = () => {
             </a>
           </p>
 
-          <p className="text-center text-xs text-[#735F32] mt-4">© 2025 ALL RIGHTS RESERVED TO ITP</p>
+          <p className="text-center text-xs text-[#735F32] mt-4">© {new Date().getFullYear()} ALL RIGHTS RESERVED TO ITP</p>
         </div>
 
         {/* Right - Image */}

@@ -1,13 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { useSignInWithEmailAndPassword } from 'react-firebase-hooks/auth';
 import { auth, db } from '../firebase/config';
 import { useRouter } from 'next/navigation';
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 import { FcGoogle } from 'react-icons/fc';
 import { collection, addDoc, serverTimestamp, runTransaction, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
-import { signInWithPopup, GoogleAuthProvider, sendPasswordResetEmail } from 'firebase/auth';
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, sendPasswordResetEmail } from 'firebase/auth';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import Image from 'next/image';
@@ -17,7 +16,6 @@ const SignIn = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false); // Add loading state
-  const [signInWithEmailAndPassword, user, authLoading, authError] = useSignInWithEmailAndPassword(auth);
   const router = useRouter();
   const isAdminCredentials = email.trim().toLowerCase() === 'itpadmin@gmail.com' && password === 'Abc123@!';
 
@@ -56,28 +54,8 @@ const SignIn = () => {
 
     try {
       console.log('Attempting sign-in with email:', email);
-      // Authenticate user
-      const res = await signInWithEmailAndPassword(email, password);
-
-      if (authError) {
-        console.log('Authentication error:', authError.code, authError.message);
-        switch (authError.code) {
-          case 'auth/user-not-found':
-            toast.error('User not found. Try a different one or create an account.');
-            break;
-          case 'auth/wrong-password':
-          case 'auth/invalid-credential':
-            toast.error('Invalid email or password.');
-            break;
-          case 'auth/invalid-email':
-            toast.error('Please enter a valid email address.');
-            break;
-          default:
-            toast.error(authError.message || 'An authentication error occurred.');
-        }
-        setLoading(false); // Ensure loading stops on auth error
-        return;
-      }
+      // Authenticate user — throws on failure, caught below
+      const res = await signInWithEmailAndPassword(auth, email, password);
 
       if (res?.user) {
         console.log('User authenticated:', res.user.uid);
@@ -111,8 +89,23 @@ const SignIn = () => {
       }
     } catch (e: any) {
       console.error("Login error:", e);
-      toast.error(e.message || 'An unexpected error occurred.');
-      setLoading(false); // Ensure loading stops on catch
+      switch (e.code) {
+        case 'auth/user-not-found':
+          toast.error('User not found. Try a different one or create an account.');
+          break;
+        case 'auth/wrong-password':
+        case 'auth/invalid-credential':
+          toast.error('Invalid email or password.');
+          break;
+        case 'auth/invalid-email':
+          toast.error('Please enter a valid email address.');
+          break;
+        case 'auth/too-many-requests':
+          toast.error('Too many attempts. Please try again later.');
+          break;
+        default:
+          toast.error(e.message || 'An unexpected error occurred.');
+      }
     } finally {
       setLoading(false); // Guarantee loading stops in all cases
     }
@@ -245,7 +238,7 @@ const SignIn = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-3 border border-[#735F32] bg-transparent text-[#282A3A] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C69749] placeholder-[#735F32]"
-              disabled={loading || authLoading}
+              disabled={loading}
             />
           </div>
 
@@ -263,13 +256,13 @@ const SignIn = () => {
                   }
                 }}
                 className="w-full px-4 py-3 pr-10 border border-[#735F32] bg-transparent text-[#282A3A] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C69749] placeholder-[#735F32]"
-                disabled={loading || authLoading}
+                disabled={loading}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className={`absolute inset-y-0 right-3 flex items-center text-[#735F32] hover:text-[#C69749] ${loading || authLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                disabled={loading || authLoading}
+                className={`absolute inset-y-0 right-3 flex items-center text-[#735F32] hover:text-[#C69749] ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                disabled={loading}
               >
                 {showPassword ? <AiOutlineEyeInvisible size={20} /> : <AiOutlineEye size={20} />}
               </button>
@@ -280,8 +273,8 @@ const SignIn = () => {
             <button
               type="button"
               onClick={handleForgotPassword}
-              disabled={loading || authLoading}
-              className={`text-sm hover:underline text-[#C69749] ${loading || authLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              disabled={loading}
+              className={`text-sm hover:underline text-[#C69749] ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               Forgot Password?
             </button>
@@ -289,10 +282,10 @@ const SignIn = () => {
 
           <button
             onClick={handleSignIn}
-            disabled={loading || authLoading}
-            className={`w-full bg-[#C69749] hover:bg-[#735F32] text-black font-semibold py-3 rounded-lg transition flex items-center justify-center ${loading || authLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            disabled={loading}
+            className={`w-full bg-[#C69749] hover:bg-[#735F32] text-black font-semibold py-3 rounded-lg transition flex items-center justify-center ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
-            {(loading || authLoading) ? (
+            {loading ? (
               <>
                 <svg
                   className="animate-spin h-5 w-5 mr-2 text-black"
@@ -330,8 +323,8 @@ const SignIn = () => {
           <div className="space-y-3">
             <button
               onClick={handleGoogleSignIn}
-              className={`w-full flex items-center justify-center gap-2 bg-transparent border border-[#735F32] py-2 rounded-lg hover:bg-[#f4f4f4] text-[#282A3A] transition ${loading || authLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-              disabled={loading || authLoading}
+              className={`w-full flex items-center justify-center gap-2 bg-transparent border border-[#735F32] py-2 rounded-lg hover:bg-[#f4f4f4] text-[#282A3A] transition ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              disabled={loading}
             >
               <FcGoogle size={20} />
               <span className="text-sm">Sign in with Google</span>
@@ -345,7 +338,7 @@ const SignIn = () => {
             </a>
           </p>
 
-          <p className="text-center text-xs text-[#735F32] mt-6">© 2025 ALL RIGHTS RESERVED TO ITP</p>
+          <p className="text-center text-xs text-[#735F32] mt-6">© {new Date().getFullYear()} ALL RIGHTS RESERVED TO ITP</p>
         </div>
 
         {/* Right Side - Image */}
